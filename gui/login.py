@@ -2,6 +2,7 @@ from main_menu import openMenu
 import tkinter
 import config_font 
 
+
 window = tkinter.Tk()
 window.title("Xiangqi")
 window.geometry("800x440")
