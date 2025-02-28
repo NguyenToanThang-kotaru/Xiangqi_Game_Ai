@@ -17,8 +17,12 @@ cursor.execute("""
     )
 """)
 
-
-
+cursor.execute("INSERT INTO users (username, password, elo) VALUES (%s, %s, %s)", 
+               ("player1", "pass123", 1300))
+conn.commit()
+cursor.execute("SELECT * FROM users")
+for row in cursor.fetchall():
+    print(row)
 
 cursor.close()
 conn.close()
