@@ -31,15 +31,3 @@ class Piece:
     def delete(self):
         self.canvas.delete(self.id)
 
-root = tk.Tk()
-canvas = tk.Canvas(root, width=9*CELL_SIZE, height=10*CELL_SIZE)
-canvas.pack()
-
-# Load hình quân cờ
-xe_red_img = tk.PhotoImage(file="assets/red-xe.png")
-
-# Đặt quân Xe đỏ tại (0,0) (giao điểm đầu tiên bên trái)
-xe_red = Piece(canvas, "xe_red", 0, 0, xe_red_img)
-ma_red = Piece(canvas, "ma_red", 1, 0, tk.PhotoImage(file="assets/red-ma.png"))
-
-root.mainloop()
