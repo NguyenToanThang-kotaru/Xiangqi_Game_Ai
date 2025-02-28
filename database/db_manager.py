@@ -1,9 +1,14 @@
 import mysql.connector
-conn = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password=""
-)
+
+def connect_db():
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="",
+        database="Xiangqi"
+    )
+    return conn
+conn = connect_db()
 cursor = conn.cursor()
 cursor.execute("CREATE DATABASE IF NOT EXISTS Xiangqi")
 cursor.execute("USE Xiangqi")
@@ -17,12 +22,6 @@ cursor.execute("""
     )
 """)
 
-cursor.execute("INSERT INTO users (username, password, elo) VALUES (%s, %s, %s)", 
-               ("player1", "pass123", 1300))
-conn.commit()
-cursor.execute("SELECT * FROM users")
-for row in cursor.fetchall():
-    print(row)
 
 cursor.close()
 conn.close()

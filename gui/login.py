@@ -1,3 +1,9 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from database.function_db.db_login import check_login
 from main_menu import openMenu
 import tkinter
 import config_font 
@@ -18,17 +24,14 @@ class AppState():
     flag_login = False
 
 
+
     
 window.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(window))
 
-def login():
-    username = 'admin'
-    password = '123456'
-    if username_entry.get() == username and password_entry.get() == password:
-        # window.withdraw() 
-        # import main_menu
-        # main_menu.openMenu()  
-        # WrongPassWord.grid_remove()
+def login(username_entry,password_entry):
+    username = username_entry.get()
+    password = password_entry.get()
+    if check_login(username, password)==True:
         AppState.flag_login = True
     else:
         # WrongPassWord.grid(row=3,column=0,columnspan=2,sticky="s")
@@ -51,7 +54,7 @@ password_label = tkinter.Label(
 login_button = tkinter.Button(
     frame_buttons, text="Login", bg="#FF3399", fg="white",
     font=(config_font.get_font(10)), pady=10, padx=30, bd=0, relief="flat", cursor="hand2",
-    command=login
+    command=lambda: login(username_entry, password_entry)
 )
 register_button = tkinter.Button(
     frame_buttons, text="Register", bg="#FF3399", fg="white",

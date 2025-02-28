@@ -25,6 +25,7 @@ def close_all(window,main_window=None):
         main_window.quit()
         main_window.destroy()
 
+
 def reset_entry(entry):
     entry.delete(0, 'end')
     entry.insert(0, "")
