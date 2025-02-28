@@ -1,7 +1,27 @@
-
 from tkinter import font
+from tkinter import *
 def get_font(size):
     return font.Font(family="Press Start 2P", size=size)
+
+def init_window(geometry, bg, title):
+    window = Tk()
+    window.geometry(geometry)
+    window.configure(bg=bg)
+    window.title(title)
+    return window
+
+def init_frame(parent, bg, padx, pady):
+    frame = Frame(parent, bg=bg, padx=padx, pady=pady)
+    return frame
+
+
+def init_toplevel(geometry, bg, title):
+    window = Toplevel()
+    window.geometry(geometry)
+    window.configure(bg=bg)
+    window.title(title)
+    return window
+
 
 
 def center_window(window, width=800, height=440):
@@ -24,7 +44,6 @@ def close_all(window,main_window=None):
     if main_window:
         main_window.quit()
         main_window.destroy()
-
 
 def reset_entry(entry):
     entry.delete(0, 'end')
