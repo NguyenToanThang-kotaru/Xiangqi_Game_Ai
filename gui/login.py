@@ -72,7 +72,7 @@ WrongPassWord = tkinter.Label(
 )
 
 
-#placing widgets on the screen
+#placing widgets on the screenz
 login_label.grid(row=0,column=0,columnspan=2,sticky="nsew",pady=40)
 username_label.grid(row=1,column=0,padx=5,sticky="e")
 username_entry.grid(row=1,column=1,pady=20)
