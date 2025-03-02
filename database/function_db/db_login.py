@@ -17,3 +17,9 @@ def check_login(username, password):
     return user is not None
 
 
+def register(username, password):
+    conn = connect_db()
+    cursor = conn.cursor()
+    queery = "INSERT INTO users (username, password) VALUES (%s, %s)"
+    cursor.execute(queery, (username, password))
+    conn.commit()

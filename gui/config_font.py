@@ -10,7 +10,7 @@ def init_window(geometry, bg, title):
     window.title(title)
     return window
 
-def init_frame(parent, bg, padx, pady):
+def init_frame(parent, bg, padx=None, pady=None):
     frame = Frame(parent, bg=bg, padx=padx, pady=pady)
     return frame
 
@@ -45,6 +45,17 @@ def close_all(window,main_window=None):
         main_window.quit()
         main_window.destroy()
 
+def change_gate(window, new_window):
+    window.withdraw()
+    new_window.deiconify()
+
+
 def reset_entry(entry):
     entry.delete(0, 'end')
     entry.insert(0, "")
+    
+def on_enter(e):
+    e.widget.config(bg="#DD2277")
+
+def on_leave(e):
+    e.widget.config(bg="#FF3399")

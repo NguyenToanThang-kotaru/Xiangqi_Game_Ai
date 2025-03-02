@@ -7,7 +7,7 @@ from database.function_db.db_login import check_login
 from main_menu import openMenu
 import tkinter
 import config_font 
-
+from register import openRegister
 
 window = tkinter.Tk()
 window.title("Xiangqi")
@@ -58,7 +58,8 @@ login_button = tkinter.Button(
 )
 register_button = tkinter.Button(
     frame_buttons, text="Register", bg="#FF3399", fg="white",
-    font=(config_font.get_font(10)), pady=10, padx=30, bd=0, relief="flat", cursor="hand2"
+    font=(config_font.get_font(10)), pady=10, padx=30, bd=0, relief="flat", cursor="hand2",
+    command=lambda: display_register()
 )
 # login_button = tkinter.Button(
 #     frame,text="Login",bg="#FF3399",fg="white",font=(config_font.get_font(10)),
@@ -85,23 +86,24 @@ register_button.pack(side="right", padx=10)
 
 
 
-def on_enter(e):
-    login_button.config(bg="#DD2277")
 
-def on_leave(e):
-    login_button.config(bg="#FF3399")
 
 
     
-login_button.bind("<Enter>", on_enter)
-login_button.bind("<Leave>", on_leave)
+login_button.bind("<Enter>", config_font.on_enter)
+login_button.bind("<Leave>", config_font.on_leave)
+register_button.bind("<Enter>", config_font.on_enter)
+register_button.bind("<Leave>", config_font.on_leave)
+
+def display_register():
+    config_font.change_gate(window, openRegister(window))
+
 def display_menu():
     WrongPassWord.grid_remove()
     if AppState.flag_login == True:
         config_font.reset_entry(username_entry)
         config_font.reset_entry(password_entry)
-        window.withdraw()
-        openMenu(window)
+        config_font.change_gate(window, openMenu(window))
     else:
         WrongPassWord.grid(row=3,column=0,columnspan=2,sticky="s")
 
