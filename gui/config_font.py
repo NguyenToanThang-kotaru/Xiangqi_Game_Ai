@@ -3,12 +3,6 @@ from tkinter import *
 def get_font(size):
     return font.Font(family="Press Start 2P", size=size)
 
-def init_window(geometry, bg, title):
-    window = Tk()
-    window.geometry(geometry)
-    window.configure(bg=bg)
-    window.title(title)
-    return window
 
 def init_frame(parent, bg, padx=None, pady=None):
     frame = Frame(parent, bg=bg, padx=padx, pady=pady)
@@ -37,17 +31,16 @@ def center_window(window, width=800, height=440):
     window.geometry(f"{width}x{height}+{x}+{y}")
     
 
-def close_all(window,main_window=None):
-
-    # Đóng cửa sổ menu
+def close_all(window, main_window=None):
     window.destroy()
-    if main_window:
-        main_window.quit()
-        main_window.destroy()
+    if main_window and main_window.winfo_exists():
+        main_window.deiconify()
 
 def change_gate(window, new_window):
-    window.withdraw()
+    if window.winfo_exists():  # ✅ Kiểm tra nếu cửa sổ vẫn còn tồn tại
+        window.withdraw()
     new_window.deiconify()
+
 
 
 def reset_entry(entry):

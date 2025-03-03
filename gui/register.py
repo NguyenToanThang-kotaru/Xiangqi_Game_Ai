@@ -3,7 +3,7 @@ import config_font
 
 
 def openRegister(main_window): 
-    register_window = config_font.init_window("800x440", "#333333", "Register")
+    register_window = config_font.init_toplevel("800x440", "#333333", "Register")
     config_font.center_window(register_window, 800, 440)
     register_window.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(register_window,main_window))
     register_frame = config_font.init_frame(register_window, "#333333", 10, 10)
@@ -53,4 +53,3 @@ def openRegister(main_window):
     cancel_button.bind("<Enter>", config_font.on_enter)
     cancel_button.bind("<Leave>", config_font.on_leave)
     register_window.mainloop()
-# openRegister(None)
