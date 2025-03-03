@@ -31,15 +31,15 @@ def center_window(window, width=800, height=440):
     window.geometry(f"{width}x{height}+{x}+{y}")
     
 
-def close_all(window, main_window=None):
-    window.destroy()
-    if main_window and main_window.winfo_exists():
-        main_window.deiconify()
+def close_all(window):
+    for w in window.winfo_toplevel().winfo_children():  
+        w.destroy()  # 🔴 Đóng tất cả cửa sổ con
+    window.destroy()  # 🔴 Đóng luôn cửa sổ chính
 
 def change_gate(window, new_window):
-    if window.winfo_exists():  # ✅ Kiểm tra nếu cửa sổ vẫn còn tồn tại
         window.withdraw()
-    new_window.deiconify()
+        new_window.deiconify()
+
 
 
 

@@ -92,7 +92,7 @@ def create_board(main_window):
     board = Toplevel()
     config_font.center_window(board, 800, 440)
     board.configure(bg="#333333")
-    board.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(board,main_window))
+    board.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(main_window))
     board.title("Xiangqi")
     canvas = Canvas(board, height=425, width=400,highlightthickness=0)
     canvas.configure(bg="#333333")

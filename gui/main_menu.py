@@ -12,7 +12,7 @@ def openMenu(main_window):
     menu.configure(bg="#333333")
     frameMenu=tk.Frame(menu,bg="#333333")
     config_font.center_window(menu, 800, 440)
-    menu.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(menu,main_window))
+    menu.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(main_window))
     # menu.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all_windows(login.window))
 
     class Option(tk.Button):

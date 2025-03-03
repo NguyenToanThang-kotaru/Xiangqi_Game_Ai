@@ -96,14 +96,16 @@ register_button.bind("<Enter>", config_font.on_enter)
 register_button.bind("<Leave>", config_font.on_leave)
 
 def display_register():
-    config_font.change_gate(window, openRegister(window))
+    window.withdraw()
+    openRegister(window)
 
 def display_menu(flag):
     WrongPassWord.grid_remove()
     if flag == True:
         config_font.reset_entry(username_entry)
         config_font.reset_entry(password_entry)
-        config_font.change_gate(window, openMenu(window))
+        window.withdraw()
+        openMenu(window)
     else:
         WrongPassWord.grid(row=3,column=0,columnspan=2,sticky="s")
 

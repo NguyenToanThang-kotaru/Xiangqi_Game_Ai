@@ -9,7 +9,7 @@ BlankUsername = None
 BlankPassword = None
 
 # add new accounts
-def register(username, password, repassword):
+def register(username, password, repassword, register_window, main_window):
     global UsedUsername, WrongPassword, BlankUsername, BlankPassword
     if UsedUsername:
         UsedUsername.grid_remove()
@@ -38,8 +38,7 @@ def register(username, password, repassword):
             config_font.reset_entry(username)
             config_font.reset_entry(password)
             config_font.reset_entry(repassword)
-            from login import display_menu
-            display_menu(True)
+            config_font.change_gate(register_window, main_window)
         else:
             # print the error message
             UsedUsername.grid(row=5, column=0, columnspan=2, sticky="s")
@@ -51,7 +50,7 @@ def openRegister(main_window):
     global UsedUsername, WrongPassword, BlankUsername, BlankPassword
     register_window = config_font.init_toplevel("800x440", "#333333", "Register")
     config_font.center_window(register_window, 800, 440)
-    register_window.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(register_window, main_window))
+    register_window.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(main_window))
     register_frame = config_font.init_frame(register_window, "#333333", 10, 10)
     register_frame.place(relx=0.5, rely=0.4, anchor="center") 
     button_frame = config_font.init_frame(register_frame, "#333333")
@@ -73,7 +72,7 @@ def openRegister(main_window):
     register_button = tk.Button(
         button_frame, text="Register", bg="#FF3399", fg="white",
         font=config_font.get_font(10), pady=10, padx=30, bd=0, relief="flat", cursor="hand2",
-        command=lambda: register(username_entry, password_entry, re_password_entry)
+        command=lambda: register(username_entry, password_entry, re_password_entry,register_window, main_window)
     )
 
     cancel_button = tk.Button(
