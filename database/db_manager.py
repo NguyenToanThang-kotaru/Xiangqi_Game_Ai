@@ -21,7 +21,7 @@ cursor.execute("""
         elo INT DEFAULT 1200
     )
 """)
-
+    
 
 cursor.close()
 conn.close()
