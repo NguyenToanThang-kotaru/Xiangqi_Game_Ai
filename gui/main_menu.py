@@ -1,8 +1,11 @@
 import tkinter as tk
 import config_font
-import board
+import PlayvsAI
 
-
+def display_vsAI(menu, main_window):
+    menu.withdraw()
+    PlayvsAI.create_PlayvsAI(main_window,menu)
+    
 def openMenu(main_window):
 
     # pixel_font = font.Font(family="Press Start 2P", size=20)
@@ -31,7 +34,7 @@ def openMenu(main_window):
         frameMenu,text="Main Menu",bg="#333333",fg="#FF3399",pady=50,font=config_font.get_font(20))
     menu_label.pack()
     vs_ai_button = Option(frameMenu,"PLAY VS AI")
-    vs_ai_button.config(command=lambda: config_font.change_gate(menu,board.create_board(main_window)))
+    vs_ai_button.config(command=lambda: display_vsAI(menu, main_window))
     vs_player_button = Option(frameMenu,"PLAYER VS PLAYER")
     option_button = Option(frameMenu,"OPTION")
     logout_button = Option(frameMenu,"LOGOUT")
