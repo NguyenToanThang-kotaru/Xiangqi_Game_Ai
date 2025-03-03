@@ -27,21 +27,21 @@ def create_board(main_window):
     def create_pieces(canvas):
         #lưu các ảnh vào biến để sử dụng
         images = {
-            "xe_red": PhotoImage(file="assets/red-xe.png"),
-            "ma_red": PhotoImage(file="assets/red-ma.png"),
-            "tuongj_red": PhotoImage(file="assets/red-tuongj.png"),
-            "si_red": PhotoImage(file="assets/red-si.png"),
-            "tuong_red": PhotoImage(file="assets/red-tuong.png"),
-            "phao_red": PhotoImage(file="assets/red-phao.png"),
-            "tot_red": PhotoImage(file="assets/red-tot.png"),
+            "xe_red": PhotoImage(file="Xiangqi_Game_Ai/assets/red-xe.png"),
+            "ma_red": PhotoImage(file="Xiangqi_Game_Ai/assets/red-ma.png"),
+            "tuongj_red": PhotoImage(file="Xiangqi_Game_Ai/assets/red-tuongj.png"),
+            "si_red": PhotoImage(file="Xiangqi_Game_Ai/assets/red-si.png"),
+            "tuong_red": PhotoImage(file="Xiangqi_Game_Ai/assets/red-tuong.png"),
+            "phao_red": PhotoImage(file="Xiangqi_Game_Ai/assets/red-phao.png"),
+            "tot_red": PhotoImage(file="Xiangqi_Game_Ai/assets/red-tot.png"),
 
-            "xe_black": PhotoImage(file="assets/black-xe.png"),
-            "ma_black": PhotoImage(file="assets/black-ma.png"),
-            "tuongj_black": PhotoImage(file="assets/black-tuongj.png"),
-            "si_black": PhotoImage(file="assets/black-si.png"),
-            "tuong_black": PhotoImage(file="assets/black-tuong.png"),
-            "phao_black": PhotoImage(file="assets/black-phao.png"),
-            "tot_black": PhotoImage(file="assets/black-tot.png")
+            "xe_black": PhotoImage(file="Xiangqi_Game_Ai/assets/black-xe.png"),
+            "ma_black": PhotoImage(file="Xiangqi_Game_Ai/assets/black-ma.png"),
+            "tuongj_black": PhotoImage(file="Xiangqi_Game_Ai/assets/black-tuongj.png"),
+            "si_black": PhotoImage(file="Xiangqi_Game_Ai/assets/black-si.png"),
+            "tuong_black": PhotoImage(file="Xiangqi_Game_Ai/assets/black-tuong.png"),
+            "phao_black": PhotoImage(file="Xiangqi_Game_Ai/assets/black-phao.png"),
+            "tot_black": PhotoImage(file="Xiangqi_Game_Ai/assets/black-tot.png")
         }
         
         #đặt các quân cờ vào bàn cờ (canvas)

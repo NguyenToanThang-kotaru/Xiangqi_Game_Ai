@@ -36,7 +36,7 @@ def login(username_entry,password_entry):
     else:
         # WrongPassWord.grid(row=3,column=0,columnspan=2,sticky="s")
         AppState.flag_login = False
-    display_menu()
+    display_menu(AppState.flag_login)
 
 
 frame.place(relx=0.5,rely=0.5,anchor="center")
@@ -98,9 +98,9 @@ register_button.bind("<Leave>", config_font.on_leave)
 def display_register():
     config_font.change_gate(window, openRegister(window))
 
-def display_menu():
+def display_menu(flag):
     WrongPassWord.grid_remove()
-    if AppState.flag_login == True:
+    if flag == True:
         config_font.reset_entry(username_entry)
         config_font.reset_entry(password_entry)
         config_font.change_gate(window, openMenu(window))
