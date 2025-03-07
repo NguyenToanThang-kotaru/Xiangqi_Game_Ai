@@ -31,3 +31,5 @@ class Piece:
     def delete(self):
         self.canvas.delete(self.id)
 
+    def __str__(self):
+        return f"{self.name} tại ({self.x}, {self.y})"
