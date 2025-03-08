@@ -6,6 +6,8 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from game.Piece import Piece
+from game.game_logic import on_click
+
 
 CELL_SIZE = 40
 def create_board(canvas):
@@ -82,5 +84,6 @@ def create_pieces(canvas):
         Piece(canvas, "tot_black", 8, 3, images["tot_black"]),
     ]
     canvas.images = images  # Giữ tham chiếu ảnh để tránh bị xóa
+    canvas.bind("<Button-1>", lambda event: on_click(event, canvas, pieces))
     return pieces 
 

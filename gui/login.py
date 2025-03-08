@@ -11,7 +11,7 @@ from register import openRegister
 
 window = tkinter.Tk()
 window.title("Xiangqi")
-window.geometry("800x440")
+window.geometry("800x440")  
 window.configure(bg="#333333")
 frame=tkinter.Frame(window,bg="#333333")
 frame_buttons = tkinter.Frame(frame, bg="#333333")
