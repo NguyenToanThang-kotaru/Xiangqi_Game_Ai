@@ -3,21 +3,6 @@ selected_piece = None
 global CELL_SIZE
 CELL_SIZE = 40
 PIECE_RADIUS = CELL_SIZE // 2
-def on_click(event, canvas, pieces):
-    global selected_piece
-    col = event.x // CELL_SIZE - 1
-    row = event.y // CELL_SIZE - 1
-
-    for piece in pieces:
-        if piece.get_pixel_y == col and piece.get_pixel_x == row:
-            selected_piece = piece
-            print(f"Chọn quân: {piece.name} tại ({col}, {row})")
-            return
-    
-    if selected_piece:
-        print(f"Di chuyển {selected_piece.name} đến ({col}, {row})")
-        selected_piece.move(col, row)
-        selected_piece = None  # Bỏ chọn quân
         
 def get_piece_by_position(x_click, y_click, pieces):
     nearest_piece = None
@@ -50,11 +35,15 @@ def on_click(event,pieces):
     piece = get_piece_by_position(x, y, pieces)
     col = round(event.x / CELL_SIZE)-1  
     row = round(event.y / CELL_SIZE)-1
-    print("col",col)
-    print("row",row)
-    if selected_piece:
+    # print("col",col)
+    # print("row",row)
+    if selected_piece and (0<=col<=8) and (0<=row<=9):
+        print(f"before Quân cờ: {selected_piece.name}, Vị trí: ({selected_piece.x}, {selected_piece.y})") 
         selected_piece.move(col,row)
-        
+        print(f"after Quân cờ: {selected_piece.name}, Vị trí: ({selected_piece.x}, {selected_piece.y})") 
+        # for piece in pieces:
+        #     if(piece.y==9):
+        #         print(f"Quân cờ: {piece.name}, Vị trí: ({piece.x}, {piece.y})")
         selected_piece=None
     else:
         if piece:  

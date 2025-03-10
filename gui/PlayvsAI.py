@@ -28,4 +28,5 @@ def create_PlayvsAI(main_window,main_menu):
     back_button.place(x=10,)
     
     board.mainloop()
-        
+
+create_PlayvsAI(tk.Tk(),tk.Toplevel())

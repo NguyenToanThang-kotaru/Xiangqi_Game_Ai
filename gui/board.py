@@ -18,6 +18,12 @@ def create_board(canvas):
         else:
             canvas.create_line(x, CELL_SIZE, x, 5*CELL_SIZE, width=2,fil="#FF3399")
             canvas.create_line(x, 6*CELL_SIZE, x, 10*CELL_SIZE, width=2,fill="#FF3399")
+    for col in range(9):
+        x = (col + 1) * CELL_SIZE
+        canvas.create_text(x, CELL_SIZE//4, text=str(col), font=("Arial", 16), fill="#FF3399")
+    for row in range(10):
+        y = (row + 1) * CELL_SIZE
+        canvas.create_text(CELL_SIZE//4,y, text=str(row), font=("Arial", 16), fill="#FF3399")
     for row in range(10):
         y = (row + 1) * CELL_SIZE
         canvas.create_line(CELL_SIZE, y, CELL_SIZE * 9, y, width=2,fill="#FF3399")
@@ -46,7 +52,7 @@ def create_pieces(canvas):
     }
     
         #đặt các quân cờ vào bàn cờ (canvas)
-        
+        #board_state
     pieces = [
         # Đỏ
         Piece(canvas, "xe_red", 0, 9, images["xe_red"]),
