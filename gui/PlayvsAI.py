@@ -4,7 +4,7 @@ import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from board import Board
+from game.board import Board
 from game.game_logic import GameLogic
 
 def create_PlayvsAI(main_window, main_menu):
