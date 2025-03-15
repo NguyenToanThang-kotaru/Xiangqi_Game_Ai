@@ -1,39 +1,5 @@
-# import pygame
-
-# class Piece:
-#     CELL_SIZE = 80
-#     PIECE_SIZE = CELL_SIZE + 70
-
-#     def grid_to_pixel(self, col, row):
-#         x = col * self.CELL_SIZE - self.PIECE_SIZE // 10 - 7
-#         y = row * self.CELL_SIZE - self.PIECE_SIZE // 10 - 5
-#         return x, y
-
-#     def __init__(self, image_path, x, y):
-#         # global PIECE_SIZE
-#         self.image = pygame.image.load(image_path)
-#         self.image = pygame.transform.scale(self.image, (self.PIECE_SIZE, self.PIECE_SIZE))
-#         self.pos = [self.grid_to_pixel(x, y)]
-#         self.pos = list(self.grid_to_pixel(x, y))
-#         self.selected = False
-
-#     def draw(self, screen):
-#         screen.blit(self.image, self.pos)
-
-#     #chatgpt support this
-#     def handle_event(self, event):
-#         if event.type == pygame.MOUSEBUTTONDOWN:
-#             x, y = event.pos
-#             if self.pos[0] == x and self.pos[1]== y:
-#                 self.selected = True
-#         elif event.type == pygame.MOUSEBUTTONUP:
-#             self.selected = False
-#         elif event.type == pygame.MOUSEMOTION and self.selected:
-#             self.pos = list(event.pos)
-
-
-
 import pygame
+import os
 
 class Piece:
     CELL_SIZE = 70  # Kích thước mỗi ô cờ
@@ -43,11 +9,16 @@ class Piece:
     board_height = (NUM_ROW - 1) * CELL_SIZE
 
     screen_width, screen_height = 750, 750 #cannot use the function screen.get_size()
-    BOARD_START_X = (screen_width - board_width) // 2  # Vị trí bắt đầu bàn cờ
-    BOARD_START_Y = (screen_height - board_height) // 2  # Vị trí bắt đầu bàn cờ
+
+    # Vị trí bắt đầu bàn cờ
+    BOARD_START_X = (screen_width - board_width) // 2  
+    BOARD_START_Y = (screen_height - board_height) // 2 
+
     PIECE_SIZE = 90  # Kích thước quân cờ
 
+    # Initialize the pieces
     def __init__(self, image_path, col, row):
+        self.image_path = image_path
         self.image = pygame.image.load(image_path)
         self.image = pygame.transform.scale(self.image, (self.PIECE_SIZE, self.PIECE_SIZE))
         self.col = col  # Vị trí cột 
@@ -66,7 +37,7 @@ class Piece:
         # Vẽ quân cờ lên màn hình 
         screen.blit(self.image, (self.x, self.y))
 
-    def handle_event(self, event):
+    def handle_event(self, event, pieces):
         # Xử lý sự kiện chuột để kéo thả quân cờ 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
@@ -79,13 +50,29 @@ class Piece:
             if self.selected:
                 mx, my = event.pos
 
-                # Căn chỉnh vị trí quân cờ về đúng ô gần nhất
-                self.col = round((mx - self.BOARD_START_X) / self.CELL_SIZE)
-                self.row = round((my - self.BOARD_START_Y) / self.CELL_SIZE)
+                # Căn chỉnh vị trí quân cờ (dự kiến) về đúng ô gần nhất 
+                draft_col = round((mx - self.BOARD_START_X) / self.CELL_SIZE)
+                draft_row = round((my - self.BOARD_START_Y) / self.CELL_SIZE)
 
                 # Giới hạn phạm vi di chuyển trong bàn cờ
-                self.col = max(0, min(8, self.col))
-                self.row = max(0, min(9, self.row))
+                if (draft_col > 8 or draft_row > 9):
+                    self.col = max(0, min(8, draft_col))
+                    self.row = max(0, min(9, draft_row))
+
+                # Giới hạn phạm vi di chuyển của từng quân cờ
+                # take the name of the image
+                piece_base_name = os.path.basename(self.image_path) 
+                name = os.path.splitext(piece_base_name)[0]
+
+                if name == "red-tot":
+                    if not self.is_friendly_piece_at(draft_col, draft_row, pieces, name):
+                        self.redPawn_logic(draft_col, draft_row)
+                elif name == "black-tot":
+                    if not self.is_friendly_piece_at(draft_col, draft_row, pieces, name):
+                        self.blackPawn_logic(draft_col, draft_row)
+                else:
+                    self.col = draft_col
+                    self.row = draft_row
 
                 # Cập nhật lại vị trí đúng ô
                 self.update_position()
@@ -97,3 +84,31 @@ class Piece:
             self.x = mx - self.offset_x
             self.y = my - self.offset_y
 
+    # check if there are friendly piece in the specific position
+    def is_friendly_piece_at(self, col, row, pieces, name):
+        for piece in pieces:
+            if piece.col == col and piece.row == row:
+                # Check if the piece is friendly
+                if os.path.basename(piece.image_path).split('-')[0] == name.split('-')[0]:
+                    return True
+        return False
+
+    def blackPawn_logic(self, col, row):
+        if self.row <= 4: # Before crossing the river
+            if self.col == col and (row - self.row) == 1:
+                self.row = row
+        else:
+            if self.col == col and (row - self.row) == 1:
+                self.row = row
+            elif self.row == row and abs(self.col - col) == 1:
+                self.col = col
+    
+    def redPawn_logic(self, col, row):
+        if self.row >= 5:  # Before crossing the river
+            if col == self.col and (self.row - row) == 1:
+                self.row = row
+        else:  # After crossing the river
+            if col == self.col and (self.row - row) == 1:
+                self.row = row
+            elif row == self.row and abs(col - self.col) == 1:
+                self.col = col
