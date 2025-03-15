@@ -93,15 +93,32 @@ class Board:
         x1 = piece.x
         y1 = piece.y
         x2, y2 = to_pos
-        
-
-        if self.board_state[y1][x1]:  # Nếu có quân cờ ở vị trí ban đầu
-            piece = self.board_state[y1][x1]
-            piece.move(x2, y2)  
-            print("Di chuyển quân",piece.name," đến (",to_pos,")")
-            self.board_state[y2][x2] = piece
-            self.board_state[y1][x1] = None
-            self.selected_piece = None  
+        target_piece = self.board_state[y2][x2]
+        if x1==x2 and y1==y2:
+            return 0
+        else:
+            if target_piece:
+                piece = self.board_state[y1][x1]
+                if target_piece.color != piece.color:
+                    print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
+                    self.pieces.remove(target_piece)
+                    self.canvas.delete(target_piece.id)
+                    piece.move(x2, y2) 
+                    self.board_state[y2][x2] = piece
+                    self.board_state[y1][x1] = None
+                    self.selected_piece = None
+                    return 1
+                else:
+                    print("đã chuyển đổi từ quân ",piece.name ,"sang ",target_piece.name)
+                    self.selected_piece = target_piece
+                    return 0
+            else:    
+                piece.move(x2, y2)  
+                print("Di chuyển quân",piece.name," đến (",to_pos,")")
+                self.board_state[y2][x2] = piece
+                self.board_state[y1][x1] = None
+                self.selected_piece = None
+                return 1  
         
 
     def on_click(self, event):
@@ -114,13 +131,17 @@ class Board:
 
         if self.selected_piece and 0<col<9 and 0<row<10:
             # Tạm thời không kiểm tra luật đi, chỉ thực hiện di chuyển
-            self.move_piece(self.selected_piece, (col, row))
-            self.print_board()
-            fen = self.to_fen()
-            print(fen)
-            self.selected_piece = None
-            # Chuyển lượt sau khi di chuyển
-            self.current_turn = "black" if self.current_turn == "red" else "red"
+            if self.move_piece(self.selected_piece, (col, row))==1:
+                
+            # self.move_piece(self.selected_piece, (col, row))
+                self.print_board()
+                # fen = self.to_fen()
+                # print(fen)
+                self.selected_piece = None
+                # Chuyển lượt sau khi di chuyển
+                self.current_turn = "black" if self.current_turn == "red" else "red"
+            # elif self.move_piece(self.selected_piece, (col, row))==1:
+                
         else:
             piece = self.get_piece_by_position(x, y)
             if piece and piece.color == self.current_turn:
@@ -153,7 +174,7 @@ class Board:
         """In trạng thái bàn cờ (debug)"""
         for row in self.board_state:
             print([p.name if p else "." for p in row])
-        print("\n\n\n\n\n")
+        print("\n\n")
 
     def to_fen(self):
         """Chuyển trạng thái bàn cờ thành chuỗi FEN chuẩn"""
