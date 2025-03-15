@@ -28,4 +28,4 @@ def create_PlayvsAI(main_window, main_menu):
     board_window.mainloop()
     
 
-create_PlayvsAI(tk.Tk(),tk.Toplevel());
+# create_PlayvsAI(tk.Tk(),tk.Toplevel());

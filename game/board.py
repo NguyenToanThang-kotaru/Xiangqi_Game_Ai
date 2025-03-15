@@ -129,7 +129,7 @@ class Board:
         col = round(event.x / CELL_SIZE) - 1  
         row = round(event.y / CELL_SIZE) - 1
 
-        if self.selected_piece and 0<col<9 and 0<row<10:
+        if self.selected_piece and 0<=col<9 and 0<=row<10:
             # Tạm thời không kiểm tra luật đi, chỉ thực hiện di chuyển
             if self.move_piece(self.selected_piece, (col, row))==1:
                 
