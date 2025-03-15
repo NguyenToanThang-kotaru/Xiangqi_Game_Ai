@@ -16,6 +16,7 @@ class Piece:
         self.y = y
         self.photo = image  # Giữ ảnh trong class
         self.id = canvas.create_image(self.get_pixel_x(), self.get_pixel_y(), image=self.photo, anchor=tk.CENTER)
+        self.color = "red" if "red" in name else "black"
 
     def get_pixel_x(self):
         return (self.x+1) * CELL_SIZE 
