@@ -102,6 +102,7 @@ class Board:
             self.board_state[y2][x2] = piece
             self.board_state[y1][x1] = None
             self.selected_piece = None  
+        
 
     def on_click(self, event):
         """Xử lý click: chọn hoặc di chuyển quân cờ"""
@@ -111,10 +112,12 @@ class Board:
         col = round(event.x / CELL_SIZE) - 1  
         row = round(event.y / CELL_SIZE) - 1
 
-        if self.selected_piece:
+        if self.selected_piece and 0<col<9 and 0<row<10:
             # Tạm thời không kiểm tra luật đi, chỉ thực hiện di chuyển
             self.move_piece(self.selected_piece, (col, row))
             self.print_board()
+            fen = self.to_fen()
+            print(fen)
             self.selected_piece = None
             # Chuyển lượt sau khi di chuyển
             self.current_turn = "black" if self.current_turn == "red" else "red"
@@ -122,9 +125,10 @@ class Board:
             piece = self.get_piece_by_position(x, y)
             if piece and piece.color == self.current_turn:
                 self.selected_piece = piece
-                print(f"Chọn quân cờ tại ({self.selected_piece.x}, {self.selected_piece.y})")
+                print(f"Chọn quân({self.selected_piece.name}) cờ tại ({self.selected_piece.x}, {self.selected_piece.y})")
             else:
                 print("Không thể chọn quân cờ này hoặc sai màu!")
+                self.selected_piece = None
 
 
 
@@ -150,4 +154,44 @@ class Board:
         for row in self.board_state:
             print([p.name if p else "." for p in row])
         print("\n\n\n\n\n")
+
+    def to_fen(self):
+        """Chuyển trạng thái bàn cờ thành chuỗi FEN chuẩn"""
+        fen_rows = []
+        
+        for row in self.board_state:
+            empty_count = 0
+            fen_row = ""
+            
+            for piece in row:
+                if piece is None:
+                    empty_count += 1
+                else:
+                    if empty_count > 0:
+                        fen_row += str(empty_count)
+                        empty_count = 0
+                    # Lấy ký hiệu quân cờ theo chuẩn FEN
+                    fen_row += self.get_piece_fen_symbol(piece)
+    
+            if empty_count > 0:
+                fen_row += str(empty_count)
+    
+            fen_rows.append(fen_row)
+    
+        # Ghép thành chuỗi FEN hoàn chỉnh
+        board_fen = "/".join(fen_rows)
+        turn_fen = "w" if self.current_turn == "red" else "b"
+    
+        return f"{board_fen} {turn_fen}"
+    
+    def get_piece_fen_symbol(self, piece):
+        """Trả về ký hiệu FEN của quân cờ theo chuẩn ICCS"""
+        symbol_map = {
+            "xe_red": "R", "ma_red": "N", "tuongj_red": "B", "si_red": "A", "tuong_red": "K",
+            "phao_red": "C", "tot_red": "P",
+            "xe_black": "r", "ma_black": "n", "tuongj_black": "b", "si_black": "a", "tuong_black": "k",
+            "phao_black": "c", "tot_black": "p",
+        }
+        return symbol_map.get(piece.name, "?")
+    
 
