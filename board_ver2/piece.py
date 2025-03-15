@@ -58,6 +58,7 @@ class Piece:
                 if (draft_col > 8 or draft_row > 9):
                     self.col = max(0, min(8, draft_col))
                     self.row = max(0, min(9, draft_row))
+                    return
 
                 # Giới hạn phạm vi di chuyển của từng quân cờ
                 # take the name of the image
@@ -70,6 +71,9 @@ class Piece:
                 elif name == "black-tot":
                     if not self.is_friendly_piece_at(draft_col, draft_row, pieces, name):
                         self.blackPawn_logic(draft_col, draft_row)
+                elif name == "black-xe" or name == "red-xe":
+                    if not self.is_friendly_piece_at(draft_col, draft_row, pieces, name):
+                        self.rook_logic(draft_col, draft_row, pieces)
                 else:
                     self.col = draft_col
                     self.row = draft_row
@@ -112,3 +116,26 @@ class Piece:
                 self.row = row
             elif row == self.row and abs(col - self.col) == 1:
                 self.col = col
+
+    def rook_logic(self, col, row, pieces):
+        step = -1
+        if self.col == col:
+            # check the row 
+            if self.row < row:
+                step = 1
+            for i in range(self.row + step, row, step):
+                # if there is a friendly piece at the position (col, i) for the first time => return
+                for piece in pieces:
+                    if piece.col == self.col and piece.row == i:
+                        return
+            self.row = row
+        elif self.row == row:
+            if self.col < col:
+                step = 1
+            for i in range(self.col + step, col, step):
+                # if there is a friendly piece at the position (i, col) for the first time => return
+                for piece in pieces:
+                    if piece.row == self.row and piece.col == i:
+                        return
+            self.col = col
+
