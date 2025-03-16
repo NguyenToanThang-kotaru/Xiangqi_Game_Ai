@@ -37,14 +37,20 @@ class Piece:
         # Vẽ quân cờ lên màn hình 
         screen.blit(self.image, (self.x, self.y))
 
-    def handle_event(self, event, pieces):
+    def handle_event(self, event, pieces, board):
         # Xử lý sự kiện chuột để kéo thả quân cờ 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
-            if self.x <= mx <= self.x + self.PIECE_SIZE and self.y <= my <= self.y + self.PIECE_SIZE:
-                self.selected = True
-                self.offset_x = mx - self.x
-                self.offset_y = my - self.y
+            # take the name of the image
+            piece_base_name = os.path.basename(self.image_path) 
+            name = os.path.splitext(piece_base_name)[0]
+            color = name.split('-')[0]
+
+            if color == board.turn:
+                if self.x <= mx <= self.x + self.PIECE_SIZE and self.y <= my <= self.y + self.PIECE_SIZE:
+                    self.selected = True
+                    self.offset_x = mx - self.x
+                    self.offset_y = my - self.y
 
         elif event.type == pygame.MOUSEBUTTONUP:
             if self.selected:
@@ -65,22 +71,45 @@ class Piece:
                 piece_base_name = os.path.basename(self.image_path) 
                 name = os.path.splitext(piece_base_name)[0]
 
+                status = False
+
                 if name == "red-tot":
                     if not self.is_friendly_piece_at(draft_col, draft_row, pieces, name):
-                        self.redPawn_logic(draft_col, draft_row)
+                        status = self.redPawn_logic(draft_col, draft_row)
+                        if self.is_enemy_piece_at(draft_col, draft_row, pieces, name) and status == True:
+                            self.remove_piece(draft_col, draft_row, pieces, name.split('-')[0]) # do something to delete the enemy's piece
+
                 elif name == "black-tot":
                     if not self.is_friendly_piece_at(draft_col, draft_row, pieces, name):
-                        self.blackPawn_logic(draft_col, draft_row)
-                elif name == "black-xe" or name == "red-xe":
+                        status = self.blackPawn_logic(draft_col, draft_row)
+                        if self.is_enemy_piece_at(draft_col, draft_row, pieces, name) and status == True:
+                            self.remove_piece(draft_col, draft_row, pieces, name.split('-')[0]) # do something to delete the enemy's piece
+
+                elif name == "black-xe" or name == "red-xe":                     
                     if not self.is_friendly_piece_at(draft_col, draft_row, pieces, name):
-                        self.rook_logic(draft_col, draft_row, pieces)
+                        status = self.rook_logic(draft_col, draft_row, pieces)
+                        if self.is_enemy_piece_at(draft_col, draft_row, pieces, name) and status == True:
+                            self.remove_piece(draft_col, draft_row, pieces, name.split('-')[0]) # do something to delete the enemy's piece
+
+                elif name == "black-phao" or name == "red-phao":
+                    if not self.is_friendly_piece_at(draft_col, draft_row, pieces, name):
+                        status = self.cannon_logic(draft_col, draft_row, pieces)
+                        if self.is_enemy_piece_at(draft_col, draft_row, pieces, name) and status == True:
+                            self.remove_piece(draft_col, draft_row, pieces, name.split('-')[0]) # do something to delete the enemy's piece
+
                 else:
                     self.col = draft_col
                     self.row = draft_row
+                    status = True
 
                 # Cập nhật lại vị trí đúng ô
                 self.update_position()
                 self.selected = False
+                if status:
+                    board.turn = "black" if board.turn == "red" else "red"
+                    print(board.turn)
+                else:
+                    print("No moves are made")
 
         elif event.type == pygame.MOUSEMOTION and self.selected:
             # Di chuyển quân cờ theo chuột nhưng vẫn giữ khoảng cách ban đầu
@@ -96,26 +125,48 @@ class Piece:
                 if os.path.basename(piece.image_path).split('-')[0] == name.split('-')[0]:
                     return True
         return False
+    
+    def is_enemy_piece_at(self, col, row, pieces, name):
+        for piece in pieces:
+            if piece.col == col and piece.row == row:
+                # Chech if the piece is enemy's
+                if os.path.basename(piece.image_path).split('-')[0] != name.split('-')[0]:
+                    return True
+        return False
+    
+    def remove_piece(self, col, row, pieces, color):
+        for piece in pieces:
+            if piece.col == col and piece.row == row and os.path.basename(piece.image_path).split('-')[0] != color:
+                pieces.remove(piece)
+                break
 
     def blackPawn_logic(self, col, row):
         if self.row <= 4: # Before crossing the river
             if self.col == col and (row - self.row) == 1:
                 self.row = row
+                return True
         else:
             if self.col == col and (row - self.row) == 1:
                 self.row = row
+                return True
             elif self.row == row and abs(self.col - col) == 1:
                 self.col = col
+                return True
+        return False
     
     def redPawn_logic(self, col, row):
         if self.row >= 5:  # Before crossing the river
             if col == self.col and (self.row - row) == 1:
                 self.row = row
+                return True
         else:  # After crossing the river
             if col == self.col and (self.row - row) == 1:
                 self.row = row
+                return True
             elif row == self.row and abs(col - self.col) == 1:
                 self.col = col
+                return True
+        return False
 
     def rook_logic(self, col, row, pieces):
         step = -1
@@ -127,7 +178,7 @@ class Piece:
                 # if there is a friendly piece at the position (col, i) for the first time => return
                 for piece in pieces:
                     if piece.col == self.col and piece.row == i:
-                        return
+                        return False
             self.row = row
         elif self.row == row:
             if self.col < col:
@@ -136,6 +187,29 @@ class Piece:
                 # if there is a friendly piece at the position (i, col) for the first time => return
                 for piece in pieces:
                     if piece.row == self.row and piece.col == i:
-                        return
+                        return False
             self.col = col
+        return True
 
+    def cannon_logic(self, col, row, pieces):
+        step = -1
+        if self.col == col:
+            # check the row 
+            if self.row < row:
+                step = 1
+            for i in range(self.row + step, row, step):
+                # if there is a friendly piece at the position (col, i) for the first time => return
+                for piece in pieces:
+                    if piece.col == self.col and piece.row == i:
+                        return False
+            self.row = row
+        elif self.row == row:
+            if self.col < col:
+                step = 1
+            for i in range(self.col + step, col, step):
+                # if there is a friendly piece at the position (i, col) for the first time => return
+                for piece in pieces:
+                    if piece.row == self.row and piece.col == i:
+                        return False
+            self.col = col
+        return True

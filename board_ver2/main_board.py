@@ -106,7 +106,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         for piece in pieces:
-            piece.handle_event(event, pieces)
+            piece.handle_event(event, pieces, board)
 
     board.draw()
     for piece in pieces:

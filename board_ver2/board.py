@@ -3,6 +3,7 @@ import pygame
 class Board:
     def __init__(self, screen):
         self.screen = screen
+        self.turn = "red" # xét lượt chơi của 2 bên
     
     def draw(self):
         CELL_SIZE = 70
