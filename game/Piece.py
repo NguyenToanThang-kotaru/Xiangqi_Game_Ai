@@ -34,3 +34,5 @@ class Piece:
 
     def __str__(self):
         return f"{self.name} tại ({self.x}, {self.y})"
+    
+    

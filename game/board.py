@@ -95,33 +95,38 @@ class Board:
         x1 = piece.x
         y1 = piece.y
         x2, y2 = to_pos
-        target_piece = self.board_state[y2][x2]
-        if x1==x2 and y1==y2:
+        if not self.game_logic.check_move(piece,to_pos,self.board_state):
+            print("Nước đi không hợp lệ!")
+            self.selected_piece = None
             return 0
         else:
-            if target_piece:
-                piece = self.board_state[y1][x1]
-                if target_piece.color != piece.color:
-                    print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
-                    self.pieces.remove(target_piece)
-                    self.canvas.delete(target_piece.id)
-                    piece.move(x2, y2) 
+            target_piece = self.board_state[y2][x2]
+            if x1==x2 and y1==y2:
+                return 0
+            else:
+                if target_piece:
+                    piece = self.board_state[y1][x1]
+                    if target_piece.color != piece.color:
+                        print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
+                        self.pieces.remove(target_piece)
+                        self.canvas.delete(target_piece.id)
+                        piece.move(x2, y2) 
+                        self.board_state[y2][x2] = piece
+                        self.board_state[y1][x1] = None
+                        self.selected_piece = None
+                        return 1
+                    else:
+                        print("đã chuyển đổi từ quân ",piece.name ,"sang ",target_piece.name)
+                        self.selected_piece = target_piece
+                        return 0
+                else:    
+                    piece.move(x2, y2)  
+                    print("Di chuyển quân",piece.name," đến (",to_pos,")")
                     self.board_state[y2][x2] = piece
                     self.board_state[y1][x1] = None
                     self.selected_piece = None
-                    return 1
-                else:
-                    print("đã chuyển đổi từ quân ",piece.name ,"sang ",target_piece.name)
-                    self.selected_piece = target_piece
-                    return 0
-            else:    
-                piece.move(x2, y2)  
-                print("Di chuyển quân",piece.name," đến (",to_pos,")")
-                self.board_state[y2][x2] = piece
-                self.board_state[y1][x1] = None
-                self.selected_piece = None
-                return 1  
-        
+                    return 1  
+
 
     def on_click(self, event):
         """Xử lý click: chọn hoặc di chuyển quân cờ"""
@@ -136,7 +141,7 @@ class Board:
             if self.move_piece(self.selected_piece, (col, row))==1:
                 
             # self.move_piece(self.selected_piece, (col, row))
-                self.print_board()
+                # self.print_board()
                 # fen = self.to_fen()
                 # print(fen)
                 # --------------- Update FEN String to check repetition ---------------
