@@ -25,7 +25,6 @@ class Board:
         self.canvas.bind("<Button-1>", self.on_click)
 
     def draw_board(self):
-        """Vẽ bàn cờ trên canvas"""
         for col in range(9):
             x = (col + 1) * CELL_SIZE
             if col == 0 or col == 8:
@@ -44,7 +43,6 @@ class Board:
         self.canvas.create_line(CELL_SIZE*4, CELL_SIZE*10, CELL_SIZE*6, CELL_SIZE*8, width=2, fill="#FF3399")
 
     def load_images(self):
-        """Tải ảnh quân cờ"""
         self.images = {
             "xe_red": tk.PhotoImage(file="assets/red-xe.png"),
             "ma_red": tk.PhotoImage(file="assets/red-ma.png"),
@@ -63,7 +61,6 @@ class Board:
         }
 
     def place_pieces(self):
-        """Đặt quân cờ lên bàn và lưu vào board_state"""
         initial_pieces = [
             # Quân đỏ (dưới bàn cờ)
             ("xe_red", 0, 9), ("xe_red", 8, 9),
@@ -90,23 +87,20 @@ class Board:
             self.board_state[y][x] = piece  # Lưu trạng thái bàn cờ
 
     def move_piece(self, piece, to_pos):
-        """Di chuyển quân cờ và cập nhật trạng thái"""
-        
         x1 = piece.x
         y1 = piece.y
         x2, y2 = to_pos
-        if not self.game_logic.check_move(piece,to_pos,self.board_state):
-            print("Nước đi không hợp lệ!")
-            self.selected_piece = None
+        target_piece = self.board_state[y2][x2]
+        if x1==x2 and y1==y2:
             return 0
         else:
-            target_piece = self.board_state[y2][x2]
-            if x1==x2 and y1==y2:
-                return 0
-            else:
-                if target_piece:
-                    piece = self.board_state[y1][x1]
-                    if target_piece.color != piece.color:
+            if target_piece:
+                piece = self.board_state[y1][x1]
+                if target_piece.color != piece.color:
+                    if not self.game_logic.check_move(piece,to_pos,self.board_state,target_piece):
+                        print("Di chuyen sai luat")
+                        return 0
+                    else:
                         print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
                         self.pieces.remove(target_piece)
                         self.canvas.delete(target_piece.id)
@@ -115,11 +109,15 @@ class Board:
                         self.board_state[y1][x1] = None
                         self.selected_piece = None
                         return 1
-                    else:
-                        print("đã chuyển đổi từ quân ",piece.name ,"sang ",target_piece.name)
-                        self.selected_piece = target_piece
-                        return 0
-                else:    
+                else:
+                    print("đã chuyển đổi từ quân ",piece.name ,"sang ",target_piece.name)
+                    self.selected_piece = target_piece
+                    return 0
+            else:    
+                if not self.game_logic.check_move(piece,to_pos,self.board_state,target_piece):
+                    print("Di chuyen sai luat")
+                    return 0
+                else:
                     piece.move(x2, y2)  
                     print("Di chuyển quân",piece.name," đến (",to_pos,")")
                     self.board_state[y2][x2] = piece
@@ -165,7 +163,7 @@ class Board:
                 self.selected_piece = piece
                 print(f"Chọn quân({self.selected_piece.name}) cờ tại ({self.selected_piece.x}, {self.selected_piece.y})")
             else:
-                print("Không thể chọn quân cờ này hoặc sai màu!")
+                print("Không thể chọn quân vì sai màu!")
                 self.selected_piece = None
 
 
@@ -188,13 +186,11 @@ class Board:
 
     
     def print_board(self):
-        """In trạng thái bàn cờ (debug)"""
         for row in self.board_state:
             print([p.name if p else "." for p in row])
         print("\n\n")
 
     def to_fen(self):
-        """Chuyển trạng thái bàn cờ thành chuỗi FEN chuẩn"""
         fen_rows = []
         
         for row in self.board_state:
@@ -215,15 +211,12 @@ class Board:
                 fen_row += str(empty_count)
     
             fen_rows.append(fen_row)
-    
-        # Ghép thành chuỗi FEN hoàn chỉnh
         board_fen = "/".join(fen_rows)
         turn_fen = "w" if self.current_turn == "red" else "b"
     
         return f"{board_fen} {turn_fen}"
     
     def get_piece_fen_symbol(self, piece):
-        """Trả về ký hiệu FEN của quân cờ theo chuẩn ICCS"""
         symbol_map = {
             "xe_red": "R", "ma_red": "N", "tuongj_red": "B", "si_red": "A", "tuong_red": "K",
             "phao_red": "C", "tot_red": "P",

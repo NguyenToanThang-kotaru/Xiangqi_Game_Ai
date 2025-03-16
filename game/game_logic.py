@@ -10,36 +10,30 @@ class GameLogic:
         """Kiểm tra quân cờ có đúng lượt không"""
         return piece.color == self.current_turn
 
-    def check_move(self, piece, to_pos, board_state):
-        """Kiểm tra nước đi có hợp lệ không"""
-        # x1, y1 = piece.x, piece.y
-        x2, y2 = to_pos
-        target_piece = board_state[y2][x2]
+    def check_move(self, piece, to_pos, board_state,target_piece):
 
-        # 1. Không ra ngoài bàn cờ
-        if not (0 <= x2 < 9 and 0 <= y2 < 10):
-            return False
-        
-        # 2. Không ăn quân cùng màu
-        if target_piece and target_piece.color == piece.color:
-            return False
-        
-        # 3. Kiểm tra luật di chuyển của từng quân cờ
-        if "tot" in piece.name:  # Tốt
+        x2, y2 = to_pos
+        # if target_piece.color == piece.color and target_piece is not None:
+        #     return True
+        if "tot" in piece.name:
             return self.check_tot_move(piece, x2, y2)
-        elif "xe" in piece.name:  # Xe
+        elif "xe" in piece.name:
             return self.check_xe_move(piece, x2, y2, board_state)
-        elif "ma" in piece.name:  # Mã
-            return self.check_ma_move(piece, x2, y2, board_state)
-        elif "tuongj" in piece.name:  # Tượng
-            return self.check_tuong_move(piece, x2, y2)
-        elif "si" in piece.name:  # Sĩ
-            return self.check_si_move(piece, x2, y2)
-        elif "tuong" in piece.name:  # Tướng
-            return self.check_tuong_move(piece, x2, y2)
-        elif "phao" in piece.name:  # Pháo
-            return self.check_phao_move(piece, x2, y2, board_state)
-        
+        elif "ma" in piece.name:
+            # return self.check_ma_move(piece, x2, y2, board_state)
+            return True
+        elif "tuongj" in piece.name: 
+            # return self.check_tuong_move(piece, x2, y2)
+            return True
+        elif "si" in piece.name: 
+            # return self.check_si_move(piece, x2, y2)
+            return True
+        elif "tuong" in piece.name: 
+            # return self.check_tuong_move(piece, x2, y2)
+            return True
+        elif "phao" in piece.name: 
+            # return self.check_phao_move(piece, x2, y2, board_state)
+            return True
         return False  # Mặc định không hợp lệ nếu không thuộc loại nào
 
 
