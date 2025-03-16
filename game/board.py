@@ -2,6 +2,7 @@ import tkinter as tk
 from game.Piece import Piece
 import math
 from game.game_logic import GameLogic
+from collections import defaultdict
 CELL_SIZE = 40  
 PIECE_RADIUS = CELL_SIZE // 2  
 
@@ -15,6 +16,7 @@ class Board:
         self.board_state = [[None for _ in range(9)] for _ in range(10)]  # Lưu trạng thái bàn cờ
         self.current_turn = "red"  # Bắt đầu với quân đỏ
         self.game_logic = GameLogic()  # Khởi tạo game logic
+        self.fen_counts = defaultdict(int)
 
         self.selected_piece = None
         self.draw_board()
@@ -44,20 +46,20 @@ class Board:
     def load_images(self):
         """Tải ảnh quân cờ"""
         self.images = {
-            "xe_red": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/red-xe.png"),
-            "ma_red": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/red-ma.png"),
-            "tuongj_red": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/red-tuongj.png"),
-            "si_red": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/red-si.png"),
-            "tuong_red": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/red-tuong.png"),
-            "phao_red": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/red-phao.png"),
-            "tot_red": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/red-tot.png"),
-            "xe_black": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/black-xe.png"),
-            "ma_black": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/black-ma.png"),
-            "tuongj_black": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/black-tuongj.png"),
-            "si_black": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/black-si.png"),
-            "tuong_black": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/black-tuong.png"),
-            "phao_black": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/black-phao.png"),
-            "tot_black": tk.PhotoImage(file="Xiangqi_Game_Ai/assets/black-tot.png"),
+            "xe_red": tk.PhotoImage(file="assets/red-xe.png"),
+            "ma_red": tk.PhotoImage(file="assets/red-ma.png"),
+            "tuongj_red": tk.PhotoImage(file="assets/red-tuongj.png"),
+            "si_red": tk.PhotoImage(file="assets/red-si.png"),
+            "tuong_red": tk.PhotoImage(file="assets/red-tuong.png"),
+            "phao_red": tk.PhotoImage(file="assets/red-phao.png"),
+            "tot_red": tk.PhotoImage(file="assets/red-tot.png"),
+            "xe_black": tk.PhotoImage(file="assets/black-xe.png"),
+            "ma_black": tk.PhotoImage(file="assets/black-ma.png"),
+            "tuongj_black": tk.PhotoImage(file="assets/black-tuongj.png"),
+            "si_black": tk.PhotoImage(file="assets/black-si.png"),
+            "tuong_black": tk.PhotoImage(file="assets/black-tuong.png"),
+            "phao_black": tk.PhotoImage(file="assets/black-phao.png"),
+            "tot_black": tk.PhotoImage(file="assets/black-tot.png"),
         }
 
     def place_pieces(self):
@@ -137,6 +139,16 @@ class Board:
                 self.print_board()
                 # fen = self.to_fen()
                 # print(fen)
+                # --------------- Update FEN String to check repetition ---------------
+
+                fen = self.to_fen()
+                self.fen_counts[fen] += 1
+                print(f"{fen}: Count {self.fen_counts[fen]}")
+                if self.fen_counts[fen] >= 3:
+                    print("The game is a draw")
+                    self.canvas.unbind("<Button-1>")
+                
+                # --------------- Update FEN String to check repetition ---------------
                 self.selected_piece = None
                 # Chuyển lượt sau khi di chuyển
                 self.current_turn = "black" if self.current_turn == "red" else "red"
