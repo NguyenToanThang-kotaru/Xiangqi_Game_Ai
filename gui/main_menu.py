@@ -1,10 +1,14 @@
 import tkinter as tk
 import config_font
 import PlayvsAI
+from option_menu import OptionMenu # Import OptionMenu từ file option_menu.pypy
 
 def display_vsAI(menu, main_window):
     menu.withdraw()
     PlayvsAI.create_PlayvsAI(main_window,menu)
+
+def display_option_menu(menu): # Hàm mở menu cài đặt
+    OptionMenu(menu)
     
 def openMenu(main_window):
 
@@ -37,6 +41,7 @@ def openMenu(main_window):
     vs_ai_button.config(command=lambda: display_vsAI(menu, main_window))
     vs_player_button = Option(frameMenu,"PLAYER VS PLAYER")
     option_button = Option(frameMenu,"OPTION")
+    option_button.config(command=lambda: display_option_menu(menu)) # Gọi menu cài đặt
     logout_button = Option(frameMenu,"LOGOUT")
     logout_button.config(command=lambda: config_font.change_gate(menu,main_window))
     menu.mainloop()
