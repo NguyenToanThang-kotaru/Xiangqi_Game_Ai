@@ -97,7 +97,7 @@ class Board:
             if target_piece:
                 piece = self.board_state[y1][x1]
                 if target_piece.color != piece.color:
-                    if not self.game_logic.check_move(piece,to_pos,self.board_state,target_piece):
+                    if not self.game_logic.check_move(piece,to_pos,self.board_state):
                         print("Di chuyen sai luat")
                         return 0
                     else:
@@ -110,11 +110,11 @@ class Board:
                         self.selected_piece = None
                         return 1
                 else:
-                    print("đã chuyển đổi từ quân ",piece.name ,"sang ",target_piece.name)
+                    print("đã chuyển đổi từ quân ",piece.name ,"sang ")
                     self.selected_piece = target_piece
                     return 0
             else:    
-                if not self.game_logic.check_move(piece,to_pos,self.board_state,target_piece):
+                if not self.game_logic.check_move(piece,to_pos,self.board_state):
                     print("Di chuyen sai luat")
                     return 0
                 else:

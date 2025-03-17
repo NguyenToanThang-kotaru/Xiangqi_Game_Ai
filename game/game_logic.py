@@ -10,7 +10,7 @@ class GameLogic:
         """Kiểm tra quân cờ có đúng lượt không"""
         return piece.color == self.current_turn
 
-    def check_move(self, piece, to_pos, board_state,target_piece):
+    def check_move(self, piece, to_pos, board_state):
 
         x2, y2 = to_pos
         # if target_piece.color == piece.color and target_piece is not None:
