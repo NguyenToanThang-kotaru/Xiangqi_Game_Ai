@@ -16,7 +16,6 @@ window.configure(bg="#333333")
 frame=tkinter.Frame(window,bg="#333333")
 frame_buttons = tkinter.Frame(frame, bg="#333333")
 frame_buttons.grid(row=3, column=0, columnspan=2, pady=30)
-
 config_font.center_window(window, 800, 440)
 
 
@@ -44,7 +43,7 @@ frame.place(relx=0.5,rely=0.5,anchor="center")
 login_label = tkinter.Label(
     frame,text="Login",bg="#333333",fg="#FF3399",font=(config_font.get_font(16)))
 username_label = tkinter.Label(
-    frame,text="Username",bg="#333333",fg="white",font=(config_font.get_font(10)))
+    frame,text= "Username",bg="#333333",fg="white",font=(config_font.get_font(10)))
 
 username_entry = tkinter.Entry(frame,font=(config_font.get_font(10)))
 password_entry = tkinter.Entry(frame, show="*",font=(config_font.get_font(10)))

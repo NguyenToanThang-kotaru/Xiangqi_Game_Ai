@@ -36,7 +36,6 @@ class GameLogic:
             return True
         return False  # Mặc định không hợp lệ nếu không thuộc loại nào
 
-
     def check_tot_move(self, piece, x2, y2):
         """Kiểm tra di chuyển của tốt"""
         x1, y1 = piece.x, piece.y

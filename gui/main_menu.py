@@ -10,7 +10,7 @@ def openMenu(main_window):
 
     # pixel_font = font.Font(family="Press Start 2P", size=20)
     menu = tk.Toplevel()
-    menu.title("Xiangq")
+    menu.title("Xiangqi")
     menu.geometry("800x440")
     menu.configure(bg="#333333")
     frameMenu=tk.Frame(menu,bg="#333333")
