@@ -16,7 +16,7 @@ class GameLogic:
         # if target_piece.color == piece.color and target_piece is not None:
         #     return True
         if "tot" in piece.name:
-            return self.check_tot_move(piece, x2, y2)
+            return self.check_tot_move(piece, x2, y2,board_state)
         elif "xe" in piece.name:
             return self.check_xe_move(piece, x2, y2, board_state)
         elif "ma" in piece.name:
@@ -26,7 +26,7 @@ class GameLogic:
             return self.check_tuongj_move(piece, x2, y2, board_state)
             # return True
         elif "si" in piece.name: 
-            return self.check_si_move(piece, x2, y2)
+            return self.check_si_move(piece, x2, y2,board_state)
             # return True
         elif "tuong" in piece.name: 
             return self.check_tuong_move(piece, x2, y2, board_state)
@@ -35,20 +35,27 @@ class GameLogic:
             return self.check_phao_move(piece, x2, y2, board_state)
         return False  # Mặc định không hợp lệ nếu không thuộc loại nào
 
-    def check_tot_move(self, piece, x2, y2):
-        """Kiểm tra di chuyển của tốt"""
+    def check_tot_move(self, piece, x2, y2, board_state):
+        """Kiểm tra di chuyển của quân Tốt"""
         x1, y1 = piece.x, piece.y
         direction = -1 if piece.color == "red" else 1
+        target_piece = board_state[y2][x2]  # Quân cờ tại vị trí đích
 
-        # Chưa qua sông: chỉ được đi thẳng 1 ô
+        # Chưa qua sông: chỉ đi thẳng
         if (piece.color == "red" and y1 >= 5) or (piece.color == "black" and y1 <= 4):
-            return x1 == x2 and y2 == y1 + direction
-
-        # Qua sông: đi thẳng hoặc ngang 1 ô
-        if (x1 == x2 and y2 == y1 + direction) or (y1 == y2 and abs(x1 - x2) == 1):
-            return True
+            if x1 == x2 and y2 == y1 + direction:  # Đi thẳng
+                if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
+                    return True
+        # Qua sông: đi thẳng hoặc đi ngang
+        if x1 == x2 and y2 == y1 + direction:  # Đi thẳng
+            if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
+                    return True
+        if y1 == y2 and abs(x1 - x2) == 1:  # Đi ngang
+            if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
+                    return True
 
         return False  # Nếu không thoả mãn, nước đi không hợp lệ
+
 
     def check_xe_move(self, piece, x2, y2, board_state):
         x1, y1 = piece.x, piece.y
@@ -93,7 +100,7 @@ class GameLogic:
                 if count == 0:
                     return True
             else:
-                if count == 1:
+                if count == 1 and target_piece.color != piece.color:                    
                     return True
 
         if y1 == y2:  # Đi ngang 
@@ -108,7 +115,7 @@ class GameLogic:
                 if count == 0:
                     return True
             else:
-                if count == 1:
+                if count == 1 and target_piece.color != piece.color:
                     return True
 
         return False  # Không đi chéo
@@ -123,31 +130,36 @@ class GameLogic:
             if board_state[y1+1][x1] is None:
                 if x2-x1 == 1 or x2-x1 == -1:
                     print("đi xuống")
-                    return True
+                    if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
+                        return True
+                    
 
         if y2-y1 == -2:
             if board_state[y1-1][x1] is None:
                 if x2-x1 == 1 or x2-x1 == -1:
                     print("đi lên")
-                    return True
+                    if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
+                        return True
             
         #đi ngang 
         if x2-x1 == 2:
             if board_state[y1][x1+1] is None:
                 if y2-y1 == 1 or y2-y1 == -1:
                         print("phai")
-                        return True
+                        if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
+                            return True
 
         if x2-x1 == -2:
             if board_state[y1][x1-1] is None:
                 if y2-y1 == 1 or y2-y1 == -1:
                         print("trai")
-                        return True
+                        if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
+                            return True
 
     def check_tuongj_move(self, piece, x2, y2, board_state):
 
         x1, y1 = piece.x, piece.y
-
+        target_piece = board_state[y2][x2]
         # Giới hạn di chuyển trong thành
         if piece.color == "red" and y2 < 5:
             return False
@@ -164,12 +176,13 @@ class GameLogic:
         if board_state[y_mid][x_mid] is not None:
             return False
         
-        return True
+        if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
+            return True
     
-    def check_si_move(self, piece, x2, y2):
+    def check_si_move(self, piece, x2, y2,board_state):
         
         x1, y1 = piece.x, piece.y
-
+        target_piece = board_state[y2][x2]
         if abs(x2 - x1) != 1 or abs(y2 - y1) != 1:
             return False 
         
@@ -180,8 +193,8 @@ class GameLogic:
         else:  
             if not (3 <= x2 <= 5 and 0 <= y2 <= 2):  
                 return False
-        
-        return True
+        if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
+                return True
     
     def check_tuong_move(self, piece, x2, y2,board_state):
         
