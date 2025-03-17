@@ -47,40 +47,40 @@ class Board:
         self.canvas.create_line(CELL_SIZE*4, CELL_SIZE*10, CELL_SIZE*6, CELL_SIZE*8, width=2, fill="#FF3399")
 
     def load_images(self):
-        # self.images = {
-        #     "xe_red": tk.PhotoImage(file="assets/red-xe.png"),
-        #     "ma_red": tk.PhotoImage(file="assets/red-ma.png"),
-        #     "tuongj_red": tk.PhotoImage(file="assets/red-tuongj.png"),
-        #     "si_red": tk.PhotoImage(file="assets/red-si.png"),
-        #     "tuong_red": tk.PhotoImage(file="assets/red-tuong.png"),
-        #     "phao_red": tk.PhotoImage(file="assets/red-phao.png"),
-        #     "tot_red": tk.PhotoImage(file="assets/red-tot.png"),
-        #     "xe_black": tk.PhotoImage(file="assets/black-xe.png"),
-        #     "ma_black": tk.PhotoImage(file="assets/black-ma.png"),
-        #     "tuongj_black": tk.PhotoImage(file="assets/black-tuongj.png"),
-        #     "si_black": tk.PhotoImage(file="assets/black-si.png"),
-        #     "tuong_black": tk.PhotoImage(file="assets/black-tuong.png"),
-        #     "phao_black": tk.PhotoImage(file="assets/black-phao.png"),
-        #     "tot_black": tk.PhotoImage(file="assets/black-tot.png"),
-        # }
+        self.images = {
+            "xe_red": tk.PhotoImage(file="assets/red-xe.png"),
+            "ma_red": tk.PhotoImage(file="assets/red-ma.png"),
+            "tuongj_red": tk.PhotoImage(file="assets/red-tuongj.png"),
+            "si_red": tk.PhotoImage(file="assets/red-si.png"),
+            "tuong_red": tk.PhotoImage(file="assets/red-tuong.png"),
+            "phao_red": tk.PhotoImage(file="assets/red-phao.png"),
+            "tot_red": tk.PhotoImage(file="assets/red-tot.png"),
+            "xe_black": tk.PhotoImage(file="assets/black-xe.png"),
+            "ma_black": tk.PhotoImage(file="assets/black-ma.png"),
+            "tuongj_black": tk.PhotoImage(file="assets/black-tuongj.png"),
+            "si_black": tk.PhotoImage(file="assets/black-si.png"),
+            "tuong_black": tk.PhotoImage(file="assets/black-tuong.png"),
+            "phao_black": tk.PhotoImage(file="assets/black-phao.png"),
+            "tot_black": tk.PhotoImage(file="assets/black-tot.png"),
+        }
 
         # đường truyền kiểu linux
-        self.images = {
-            "xe_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-xe.png"),
-            "ma_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-ma.png"),
-            "tuongj_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-tuongj.png"),
-            "si_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-si.png"),
-            "tuong_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-tuong.png"),
-            "phao_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-phao.png"),
-            "tot_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-tot.png"),
-            "xe_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-xe.png"),
-            "ma_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-ma.png"),
-            "tuongj_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-tuongj.png"),
-            "si_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-si.png"),
-            "tuong_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-tuong.png"),
-            "phao_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-phao.png"),
-            "tot_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-tot.png"),
-        } 
+        # self.images = {
+        #     "xe_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-xe.png"),
+        #     "ma_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-ma.png"),
+        #     "tuongj_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-tuongj.png"),
+        #     "si_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-si.png"),
+        #     "tuong_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-tuong.png"),
+        #     "phao_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-phao.png"),
+        #     "tot_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-tot.png"),
+        #     "xe_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-xe.png"),
+        #     "ma_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-ma.png"),
+        #     "tuongj_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-tuongj.png"),
+        #     "si_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-si.png"),
+        #     "tuong_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-tuong.png"),
+        #     "phao_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-phao.png"),
+        #     "tot_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-tot.png"),
+        # } 
         
     def place_pieces(self):
         initial_pieces = [

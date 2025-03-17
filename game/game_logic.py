@@ -29,7 +29,7 @@ class GameLogic:
             return self.check_si_move(piece, x2, y2)
             # return True
         elif "tuong" in piece.name: 
-            return self.check_tuong_move(piece, x2, y2)
+            return self.check_tuong_move(piece, x2, y2, board_state)
             # return True
         elif "phao" in piece.name: 
             return self.check_phao_move(piece, x2, y2, board_state)
@@ -51,24 +51,29 @@ class GameLogic:
         return False  # Nếu không thoả mãn, nước đi không hợp lệ
 
     def check_xe_move(self, piece, x2, y2, board_state):
-        """Kiểm tra di chuyển của xe (đi ngang hoặc dọc, không bị cản)"""
         x1, y1 = piece.x, piece.y
+        target_piece = board_state[y2][x2]
 
         if x1 == x2:  # Đi dọc
             step = 1 if y2 > y1 else -1
             for y in range(y1 + step, y2, step):
-                if board_state[y][x1] is not None:
+                if board_state[y][x1] is not None:  # Có quân cản
                     return False
-            return True
 
-        if y1 == y2:  # Đi ngang
+        elif y1 == y2:  # Đi ngang
             step = 1 if x2 > x1 else -1
             for x in range(x1 + step, x2, step):
-                if board_state[y1][x] is not None:
+                if board_state[y1][x] is not None:  # Có quân cản
                     return False
-            return True
 
-        return False
+        else:
+            return False  # Xe không thể đi chéo
+
+        # Nếu có quân ở đích, kiểm tra màu quân
+        if target_piece is not None and target_piece.color == piece.color:
+            return False  # Không thể ăn quân cùng màu
+
+        return True  # Hợp lệ
 
 
     def check_phao_move(self, piece, x2, y2, board_state):
@@ -149,7 +154,7 @@ class GameLogic:
         
         if piece.color == "black" and y2 >= 5:
             return False
-        
+            
         if abs(x2 - x1) != 2 or abs(y2 - y1) != 2:
             return False 
             
@@ -178,10 +183,10 @@ class GameLogic:
         
         return True
     
-    def check_tuong_move(self, piece, x2, y2):
+    def check_tuong_move(self, piece, x2, y2,board_state):
         
         x1, y1 = piece.x, piece.y
-
+        target_piece = board_state[y2][x2]
         if abs(x2 - x1) + abs(y2 - y1) != 1:
             return False 
         
@@ -189,11 +194,16 @@ class GameLogic:
         if piece.color == "red":
             if not (3 <= x2 <= 5 and 7 <= y2 <= 9):  
                 return False
+            else:
+                if target_piece is None:
+                    return True
         else:  
             if not (3 <= x2 <= 5 and 0 <= y2 <= 2):  
                 return False
-        
-        return True
+            else:
+                if target_piece is None:
+                    return True
+        return False
         
 
 

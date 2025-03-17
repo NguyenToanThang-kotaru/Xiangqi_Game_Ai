@@ -8,7 +8,7 @@ from main_menu import openMenu
 import tkinter
 import config_font 
 from register import openRegister
-
+                    
 window = tkinter.Tk()
 window.title("Xiangqi")
 window.geometry("800x440")  
