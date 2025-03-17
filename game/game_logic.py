@@ -217,33 +217,4 @@ class GameLogic:
                 if target_piece is None:
                     return True
         return False
-        
-
-
-
-
     
-
-    
-
-
-
-
-
-
-
-
-
-               
-                
-               
-                
-
-            
-                    
-                
-            
-
-
-               
-        
