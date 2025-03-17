@@ -154,12 +154,12 @@ class Board:
                 # --------------- Update FEN String to check repetition ---------------
                 self.selected_piece = None
                 # Chuyển lượt sau khi di chuyển
-                self.current_turn = "black" if self.current_turn == "red" else "red"
+                self.game_logic.swap_turn()
             # elif self.move_piece(self.selected_piece, (col, row))==1:
                 
         else:
             piece = self.get_piece_by_position(x, y)
-            if piece and piece.color == self.current_turn:
+            if piece and self.game_logic.is_correct_turn(piece):
                 self.selected_piece = piece
                 print(f"Chọn quân({self.selected_piece.name}) cờ tại ({self.selected_piece.x}, {self.selected_piece.y})")
             else:
@@ -212,7 +212,7 @@ class Board:
     
             fen_rows.append(fen_row)
         board_fen = "/".join(fen_rows)
-        turn_fen = "w" if self.current_turn == "red" else "b"
+        turn_fen = "w" if self.game_logic.current_turn == "red" else "b"
     
         return f"{board_fen} {turn_fen}"
     
