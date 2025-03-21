@@ -1,3 +1,4 @@
+import random
 import tkinter as tk
 from game.Piece import Piece
 import math
@@ -181,6 +182,8 @@ class Board:
                 # Chuyển lượt sau khi di chuyển
                 self.game_logic.swap_turn()
                 Suggestion.clear()
+                if self.game_logic.current_turn == "black":
+                    self.make_ai_move()
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
         # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
@@ -257,3 +260,36 @@ class Board:
     #     if self.selected_piece is not None:
     #         Suggestion(self, self.selected_piece)
 
+    def get_legal_moves(self, piece):
+        """Trả về danh sách các nước đi hợp lệ cho quân cờ."""
+        legal_moves = []
+        for row in range(10):
+            for col in range(9):
+                if self.game_logic.check_move(piece, (col, row), Board.board_state):
+                    legal_moves.append((col, row))
+        return legal_moves
+
+    def make_ai_move(self):
+        """AI thực hiện nước đi bằng cách chọn ngẫu nhiên một quân cờ và một nước đi hợp lệ."""
+        ai_pieces = [p for p in self.pieces if p.color == "black"]
+        
+        # Lọc ra các quân có thể đi được (có nước đi hợp lệ)
+        movable_pieces = [p for p in ai_pieces if self.get_legal_moves(p)]
+        
+        if not movable_pieces:
+            print("AI không tìm thấy nước đi hợp lệ.")
+            return
+        
+        # Chọn ngẫu nhiên một quân trong số các quân có thể di chuyển
+        piece = random.choice(movable_pieces)
+        legal_moves = self.get_legal_moves(piece)
+
+        # Chọn một nước đi ngẫu nhiên từ danh sách nước đi hợp lệ của quân đó
+        chosen_move = random.choice(legal_moves)
+
+        print(f"AI chọn di chuyển {piece.name} từ ({piece.x}, {piece.y}) đến {chosen_move}")
+        self.move_piece(piece, chosen_move)
+        self.print_board()
+
+        # Chuyển lượt cho người chơi
+        self.game_logic.swap_turn()
