@@ -40,22 +40,21 @@ class GameLogic:
         x1, y1 = piece.x, piece.y
         direction = -1 if piece.color == "red" else 1
         target_piece = board_state[y2][x2]  # Quân cờ tại vị trí đích
-
-        # Chưa qua sông: chỉ đi thẳng
-        if (piece.color == "red" and y1 >= 5) or (piece.color == "black" and y1 <= 4):
-            if x1 == x2 and y2 == y1 + direction:  # Đi thẳng
-                if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
-                    return True
-        # Qua sông: đi thẳng hoặc đi ngang
-        if x1 == x2 and y2 == y1 + direction:  # Đi thẳng
+    
+        # Nếu đi thẳng (chỉ được đi thẳng)
+        if x1 == x2 and y2 == y1 + direction:
             if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
+                return True
+    
+        # Nếu đã qua sông, kiểm tra đi ngang
+        if (piece.color == "red" and y1 < 5) or (piece.color == "black" and y1 > 4):
+            if y1 == y2 and abs(x1 - x2) == 1:  # Đi ngang
+                if target_piece is None or target_piece.color != piece.color:
                     return True
-        if y1 == y2 and abs(x1 - x2) == 1:  # Đi ngang
-            if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
-                    return True
-
+    
         return False  # Nếu không thoả mãn, nước đi không hợp lệ
-
+      # Nếu không thoả mãn, nước đi không hợp lệ
+    
 
     def check_xe_move(self, piece, x2, y2, board_state):
         x1, y1 = piece.x, piece.y

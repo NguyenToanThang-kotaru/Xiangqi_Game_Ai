@@ -8,6 +8,7 @@ from main_menu import openMenu
 import tkinter
 import config_font 
 from register import openRegister
+from sound_manager import SoundManager
                     
 window = tkinter.Tk()
 window.title("Xiangqi")
@@ -19,6 +20,8 @@ frame_buttons.grid(row=3, column=0, columnspan=2, pady=30)
 config_font.center_window(window, 800, 440)
 
 
+# Khởi tạo quản lý âm thanh
+sound_manager = SoundManager()
 class AppState():
     flag_login = False
 
