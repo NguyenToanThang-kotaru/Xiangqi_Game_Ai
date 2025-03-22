@@ -1,10 +1,17 @@
 import tkinter as tk
 import config_font  # Import để dùng chung font chữ
+from sound_manager import SoundManager
 
 class OptionMenu:
     def __init__(self, menu, main_window):
         self.menu = menu  # Lưu lại cửa sổ menu chính để quay lại khi cần
         self.root = tk.Toplevel()
+
+        # Lấy đối tượng quản lý âm thanh
+        self.sound_manager = SoundManager()
+        self.music_volume = 50
+        self.sfx_volume = 50 
+
         config_font.center_window(self.root, 800, 440)
         self.root.title("Game Settings")
         self.root.configure(bg="black")
@@ -73,6 +80,14 @@ class OptionMenu:
                                width=5, fg="white", bg="gray")
         btn_sfx_up.pack(side="right", padx=5)
 
+        # Điều chỉnh âm lượng nhạc nền
+        btn_music_down = tk.Button(music_frame, text="-", font=config_font.get_font(12), 
+                                   command=lambda: self.change_volume("music", -10),
+                                   width=5, fg="white", bg="gray")
+        btn_music_up = tk.Button(music_frame, text="+", font=config_font.get_font(12), 
+                                 command=lambda: self.change_volume("music", 10),
+                                 width=5, fg="white", bg="gray")
+
         # Nút quay lại menu chính
         exit_button = tk.Button(self.root, text="Back to Menu", 
                                 command=self.back_to_menu, font=config_font.get_font(12),
@@ -83,26 +98,28 @@ class OptionMenu:
         self.menu.withdraw()
 
     def draw_progress_bar(self, canvas, value):
-        """Vẽ thanh progress kiểu retro với ô vuông"""
+        #Vẽ thanh âm lượng theo %
         canvas.delete("all")
         canvas.create_rectangle(2, 2, 198, 18, outline="white", width=2)  # Viền ngoài
-        
-        fill_width = int(196 * (value / 100))
-        block_width = 12  # Độ rộng của mỗi ô
+
+        fill_width = int(196 * (value / 100))  # Lấp đầy theo mức âm lượng
+        block_width = 12  # Kích thước mỗi ô
         gap = 4  # Khoảng cách giữa các ô
-        num_blocks = fill_width // (block_width + gap)
-        
+        num_blocks = fill_width // (block_width + gap)  # Số ô hiển thị
+
         for i in range(num_blocks):
             x1 = 4 + i * (block_width + gap)
             x2 = x1 + block_width
             canvas.create_rectangle(x1, 4, x2, 16, fill="white", outline="white")
+
     
     def change_volume(self, setting, amount):
-        """Thay đổi âm lượng nhạc nền hoặc hiệu ứng âm thanh"""
+        #Thay đổi âm lượng nhạc nền hoặc hiệu ứng âm thanh
         if setting == "music":
             self.music_volume = max(0, min(100, self.music_volume + amount))
             self.music_label.config(text=f"Music Volume: {self.music_volume}%")
-            self.draw_progress_bar(self.music_canvas, self.music_volume)
+            self.sound_manager.set_music_volume(self.music_volume)  # Cập nhật âm lượng nhạc nền
+            self.draw_progress_bar(self.music_canvas, self.music_volume)  # Cập nhật thanh hiển thị
         elif setting == "sfx":
             self.sfx_volume = max(0, min(100, self.sfx_volume + amount))
             self.sfx_label.config(text=f"Sound Effect Volume: {self.sfx_volume}%")
