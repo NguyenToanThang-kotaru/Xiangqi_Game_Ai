@@ -2,6 +2,7 @@ import random
 import tkinter as tk
 import sys
 import os
+from game.checkmate import is_checkmated
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -173,6 +174,17 @@ class Board:
                 self.print_board()
                 # fen = self.to_fen()
                 # print(fen)
+
+                # check if the king is checkmated
+                for piece in self.pieces:
+                    if "tuong_" in piece.name:
+                        if is_checkmated(piece, self.board_state, self.pieces):
+                            if (piece.color == "red"):
+                                print("Red king is checkmated")
+                            else:
+                                print("Black king is checkmated")
+                            self.canvas.unbind("<Button-1>")
+
                 # --------------- Update FEN String to check repetition ---------------
 
                 fen = self.to_fen()
