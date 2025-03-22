@@ -10,6 +10,24 @@ class GameLogic:
         """Kiểm tra quân cờ có đúng lượt không"""
         return piece.color == self.current_turn
 
+    def get_all_valid_moves(self, color, board_state):
+            """Lấy tất cả các nước đi hợp lệ cho quân có màu 'color'."""
+            valid_moves = []
+            
+            for y in range(10):
+                for x in range(9):
+                    piece = board_state[y][x]
+                    if piece is not None and piece.color == color:
+                        # Lấy tất cả các nước đi hợp lệ cho quân cờ này
+                        for move in piece.get_valid_moves(board_state):
+                            valid_moves.append((piece, move))  # Thêm quân cờ và nước đi vào danh sách
+            
+            return valid_moves
+
+
+
+
+
     def check_move(self, piece, to_pos, board_state):
 
         x2, y2 = to_pos

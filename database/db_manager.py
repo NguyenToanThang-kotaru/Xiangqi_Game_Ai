@@ -25,3 +25,11 @@ cursor.execute("""
 
 cursor.close()
 conn.close()
+# CREATE TABLE ai_training_data (
+#     id INT AUTO_INCREMENT PRIMARY KEY,
+#     fen TEXT NOT NULL,
+#     move VARCHAR(10) NOT NULL,
+#     score INT NOT NULL,
+#     rank INT NOT NULL,
+#     winrate FLOAT
+# );

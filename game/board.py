@@ -2,7 +2,7 @@ import random
 import tkinter as tk
 import sys
 import os
-from game.checkmate import is_checkmated
+# from game.checkmate import is_checkmated
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -11,7 +11,7 @@ import math
 from game.game_logic import GameLogic
 from collections import defaultdict
 from game.suggestion import Suggestion
-from ai.model import AIModel
+# from ai.model import AIModel
 CELL_SIZE = 40  
 PIECE_RADIUS = CELL_SIZE // 2  
 
@@ -22,16 +22,17 @@ class Board:
     def __init__(self, canvas):
         self.canvas = canvas
         self.pieces = []
-        self.images = {}
-        Board.board_state = [[None for _ in range(9)] for _ in range(10)]  # Lưu trạng thái bàn cờ
-        self.current_turn = "red"  # Bắt đầu với quân đỏ
-        self.game_logic = GameLogic()  # Khởi tạo game logic
+        Board.board_state = [[None for _ in range(9)] for _ in range(10)]
+        self.current_turn = "red"
+        self.game_logic = GameLogic()
         self.fen_counts = defaultdict(int)
-        self.ai = AIModel(self)
+        # self.ai = AIModel(self,self.game_logic)
         self.selected_piece = None
-        self.suggestion = Suggestion(self.game_logic, self.canvas) # why???????????????????????????????????????????
+        self.images = {}  # Khởi tạo dictionary rỗng
+
+        self.suggestion = Suggestion(self.game_logic, self.canvas)
         self.draw_board()
-        self.load_images()
+        self.load_images()  # Load ảnh
         self.place_pieces()
         self.canvas.bind("<Button-1>", self.on_click)
 
@@ -176,14 +177,14 @@ class Board:
                 # print(fen)
 
                 # check if the king is checkmated
-                for piece in self.pieces:
-                    if "tuong_" in piece.name:
-                        if is_checkmated(piece, self.board_state, self.pieces):
-                            if (piece.color == "red"):
-                                print("Red king is checkmated")
-                            else:
-                                print("Black king is checkmated")
-                            self.canvas.unbind("<Button-1>")
+                # for piece in self.pieces:
+                #     if "tuong_" in piece.name:
+                #         if is_checkmated(piece, self.board_state, self.pieces):
+                #             if (piece.color == "red"):
+                #                 print("Red king is checkmated")
+                #             else:
+                #                 print("Black king is checkmated")
+                #             self.canvas.unbind("<Button-1>")
 
                 # --------------- Update FEN String to check repetition ---------------
 
@@ -294,3 +295,63 @@ class Board:
             self.move_piece(piece, move)
         else:
             print("AI không thể di chuyển, hòa")
+            
+            
+            
+    def set_fen(self, fen):
+        """Cập nhật bàn cờ từ chuỗi FEN."""
+        parts = fen.split()
+        board_part = parts[0]
+        turn_part = parts[1]
+
+        rows = board_part.split('/')
+        Board.board_state = [[None for _ in range(9)] for _ in range(10)]
+        self.pieces = []  # Xóa danh sách quân cờ cũ trước khi đặt lại
+
+        for y, row in enumerate(rows):
+            x = 0
+            for char in row:
+                if char.isdigit():
+                    x += int(char)
+                else:
+                    piece_name = self.fen_to_piece_name(char)
+                    if piece_name:
+                        image = self.images.get(piece_name, None)  # Tránh lỗi KeyError
+                        piece = Piece(self.canvas, piece_name, x, y, image)
+                        self.pieces.append(piece)
+                        Board.board_state[y][x] = piece
+                    x += 1
+
+        self.current_turn = 'red' if turn_part == 'w' else 'black'
+
+
+
+    def apply_move(self, move):
+        """Thực hiện nước đi từ ký hiệu như 'b2g2'."""
+        columns = 'abcdefghi'
+        from_x, from_y = columns.index(move[0]), int(move[1])
+        to_x, to_y = columns.index(move[2]), int(move[3])
+
+        piece = Board.board_state[from_y][from_x]
+        
+        if piece:  # Kiểm tra nếu có quân cờ ở vị trí ban đầu
+            self.move_piece(piece, (to_x, to_y))
+
+    def fen_to_piece_name(self, char):
+        """Chuyển ký hiệu quân cờ từ FEN về tên quân cờ của chương trình."""
+        fen_map = {
+            'r': 'xe_black', 'n': 'ma_black', 'b': 'tuongj_black',
+            'a': 'si_black', 'k': 'tuong_black', 'c': 'phao_black', 'p': 'tot_black',
+            'R': 'xe_red', 'N': 'ma_red', 'B': 'tuongj_red',
+            'A': 'si_red', 'K': 'tuong_red', 'C': 'phao_red', 'P': 'tot_red'
+        }
+        return fen_map.get(char, None)
+    
+    def get_all_valid_moves(self, color):
+        """Trả về danh sách các nước đi hợp lệ cho quân cờ có màu 'color'."""
+        valid_moves = []
+        # Logic lấy các nước đi hợp lệ cho quân cờ với màu tương ứng
+        for piece in self.pieces:
+            if piece.color == color:
+                valid_moves.extend(piece.get_valid_moves(self))
+        return valid_moves
