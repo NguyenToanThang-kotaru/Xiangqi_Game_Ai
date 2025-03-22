@@ -215,26 +215,31 @@ class GameLogic:
         return target_piece is None or target_piece.color != piece.color 
 
     
-    def is_facing_king (self,board_state):
+    def is_facing_king(self, board_state):
         tuong_red_pos = None
         tuong_black_pos = None
         # Lấy tọa độ 2 quân tướng trên bàn cờ
-        for y in range(len(board_state)):
-            for x in range(len(board_state[y])):
+        for y in range(10):
+            for x in range(9):
                 piece = board_state[y][x]
                 if piece is not None:
                     if piece.name == "tuong_red":
                         tuong_red_pos = (x, y)
+                        print(f"Tướng đỏ ở: {tuong_red_pos}")
                     elif piece.name == "tuong_black":
                         tuong_black_pos = (x, y)
-                
+                        print(f"Tướng đen ở: {tuong_black_pos}")
+        
+        # Kiểm tra trước khi unpack
+        if tuong_red_pos is None or tuong_black_pos is None:
+            print("Không tìm thấy quân tướng")
+            return False
+
         x_red, y_red = tuong_red_pos
         x_black, y_black = tuong_black_pos
 
-        if tuong_red_pos is None or tuong_black_pos is None:
-            return False
-        
         if x_red != x_black:
+            print("2 quân tướng không cùng cột")
             return False  # 2 quân tướng không cùng cột
         
         # Kiểm tra xem có quân nào chặn giữa hai tướng không
@@ -243,6 +248,7 @@ class GameLogic:
                 return False  # có quân cản giữa 2 quân tướng
         
         return True  # 2 tướng đối mặt
+
     
     # Hàm lấy trạng thái bàn cờ sau khi move
     def get_board_state_after_move(self,board_state, piece, x2, y2):

@@ -1,11 +1,16 @@
 import random
 import tkinter as tk
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from game.Piece import Piece
 import math
 from game.game_logic import GameLogic
 from collections import defaultdict
 from game.suggestion import Suggestion
-
+from ai.model import AIModel
 CELL_SIZE = 40  
 PIECE_RADIUS = CELL_SIZE // 2  
 
@@ -21,7 +26,7 @@ class Board:
         self.current_turn = "red"  # Bắt đầu với quân đỏ
         self.game_logic = GameLogic()  # Khởi tạo game logic
         self.fen_counts = defaultdict(int)
-
+        self.ai = AIModel(self)
         self.selected_piece = None
         self.suggestion = Suggestion(self.game_logic, self.canvas) # why???????????????????????????????????????????
         self.draw_board()
@@ -182,8 +187,8 @@ class Board:
                 # Chuyển lượt sau khi di chuyển
                 self.game_logic.swap_turn()
                 Suggestion.clear()
-                if self.game_logic.current_turn == "black":
-                    self.make_ai_move()
+                # if self.game_logic.current_turn == "black":
+                #     self.make_ai_move()
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
         # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
@@ -270,26 +275,10 @@ class Board:
         return legal_moves
 
     def make_ai_move(self):
-        """AI thực hiện nước đi bằng cách chọn ngẫu nhiên một quân cờ và một nước đi hợp lệ."""
-        ai_pieces = [p for p in self.pieces if p.color == "black"]
-        
-        # Lọc ra các quân có thể đi được (có nước đi hợp lệ)
-        movable_pieces = [p for p in ai_pieces if self.get_legal_moves(p)]
-        
-        if not movable_pieces:
-            print("AI không tìm thấy nước đi hợp lệ.")
-            return
-        
-        # Chọn ngẫu nhiên một quân trong số các quân có thể di chuyển
-        piece = random.choice(movable_pieces)
-        legal_moves = self.get_legal_moves(piece)
-
-        # Chọn một nước đi ngẫu nhiên từ danh sách nước đi hợp lệ của quân đó
-        chosen_move = random.choice(legal_moves)
-
-        print(f"AI chọn di chuyển {piece.name} từ ({piece.x}, {piece.y}) đến {chosen_move}")
-        self.move_piece(piece, chosen_move)
-        self.print_board()
-
-        # Chuyển lượt cho người chơi
-        self.game_logic.swap_turn()
+        """Gọi AI để chọn nước đi"""
+        ai_move = self.ai.get_ai_move()
+        if ai_move:
+            piece, move = ai_move
+            self.move_piece(piece, move)
+        else:
+            print("AI không thể di chuyển, hòa")
