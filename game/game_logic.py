@@ -15,24 +15,28 @@ class GameLogic:
         x2, y2 = to_pos
         # if target_piece.color == piece.color and target_piece is not None:
         #     return True
+
+         #dùng haki quan sát lấy trạng thái của bàn cờ sau khi move
+        new_board = self.get_board_state_after_move(board_state, piece, x2, y2)
+        
         if "tot" in piece.name:
-            return self.check_tot_move(piece, x2, y2,board_state)
+            return self.check_tot_move(piece, x2, y2,board_state) and not self.is_facing_king (new_board)
         elif "xe" in piece.name:
-            return self.check_xe_move(piece, x2, y2, board_state)
+            return self.check_xe_move(piece, x2, y2, board_state) and not self.is_facing_king (new_board)
         elif "ma" in piece.name:
-            return self.check_ma_move(piece, x2, y2, board_state)
+            return self.check_ma_move(piece, x2, y2, board_state) and not self.is_facing_king (new_board)
             # return True
         elif "tuongj" in piece.name: 
-            return self.check_tuongj_move(piece, x2, y2, board_state)
+            return self.check_tuongj_move(piece, x2, y2, board_state) and not self.is_facing_king (new_board)
             # return True
         elif "si" in piece.name: 
-            return self.check_si_move(piece, x2, y2,board_state)
+            return self.check_si_move(piece, x2, y2,board_state) and not self.is_facing_king (new_board)
             # return True
         elif "tuong" in piece.name: 
-            return self.check_tuong_move(piece, x2, y2, board_state)
+            return self.check_tuong_move(piece, x2, y2, board_state) and not self.is_facing_king (new_board)
             # return True
         elif "phao" in piece.name: 
-            return self.check_phao_move(piece, x2, y2, board_state)
+            return self.check_phao_move(piece, x2, y2, board_state) and not self.is_facing_king (new_board)
         return False  # Mặc định không hợp lệ nếu không thuộc loại nào
 
     def check_tot_move(self, piece, x2, y2, board_state):
@@ -203,17 +207,52 @@ class GameLogic:
             return False 
         
         # Giới hạn di chuyển trong thành
-        if piece.color == "red":
-            if not (3 <= x2 <= 5 and 7 <= y2 <= 9):  
-                return False
-            else:
-                if target_piece is None:
-                    return True
-        else:  
-            if not (3 <= x2 <= 5 and 0 <= y2 <= 2):  
-                return False
-            else:
-                if target_piece is None:
-                    return True
-        return False
+        if piece.color == "red" and not (3 <= x2 <= 5 and 7 <= y2 <= 9):
+            return False
+        if piece.color == "black" and not (3 <= x2 <= 5 and 0 <= y2 <= 2):
+            return False
+
+        return target_piece is None or target_piece.color != piece.color 
+
     
+    def is_facing_king (self,board_state):
+        tuong_red_pos = None
+        tuong_black_pos = None
+        # Lấy tọa độ 2 quân tướng trên bàn cờ
+        for y in range(len(board_state)):
+            for x in range(len(board_state[y])):
+                piece = board_state[y][x]
+                if piece is not None:
+                    if piece.name == "tuong_red":
+                        tuong_red_pos = (x, y)
+                    elif piece.name == "tuong_black":
+                        tuong_black_pos = (x, y)
+                
+        x_red, y_red = tuong_red_pos
+        x_black, y_black = tuong_black_pos
+
+        if tuong_red_pos is None or tuong_black_pos is None:
+            return False
+        
+        if x_red != x_black:
+            return False  # 2 quân tướng không cùng cột
+        
+        # Kiểm tra xem có quân nào chặn giữa hai tướng không
+        for y in range(min(y_red, y_black) + 1, max(y_red, y_black)):
+            if board_state[y][x_red] is not None:
+                return False  # có quân cản giữa 2 quân tướng
+        
+        return True  # 2 tướng đối mặt
+    
+    # Hàm lấy trạng thái bàn cờ sau khi move
+    def get_board_state_after_move(self,board_state, piece, x2, y2):
+        x1, y1 = piece.x, piece.y
+
+        # Sao chép trạng thái bàn cờ để không ảnh hưởng bản gốc
+        new_board_state = [row[:] for row in board_state]
+
+        # Giả lập nước đi
+        new_board_state[y1][x1] = None  # Xóa quân ở vị trí cũ
+        new_board_state[y2][x2] = piece  # Đặt quân vào vị trí mới
+
+        return new_board_state
