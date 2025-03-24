@@ -2,6 +2,8 @@ import tkinter as tk
 import config_font  # Import để dùng chung font chữ
 from sound_manager import SoundManager
 
+sound_manager = SoundManager()
+
 class OptionMenu:
     def __init__(self, menu, main_window):
         self.menu = menu  # Lưu lại cửa sổ menu chính để quay lại khi cần
@@ -45,8 +47,8 @@ class OptionMenu:
         music_frame = tk.Frame(self.root, bg="black")
         music_frame.pack()
         btn_music_down = tk.Button(music_frame, text="-", font=config_font.get_font(12), 
-                                   command=lambda: self.change_volume("music", -10),
-                                   width=5, fg="white", bg="gray")
+                                 command=lambda: [sound_manager.play_click_sound(), self.change_volume("music", -10)],
+                                 width=5, fg="white", bg="gray")
         btn_music_down.pack(side="left", padx=5)
         
         self.music_canvas = tk.Canvas(music_frame, width=200, height=20, bg="black", highlightthickness=0)
@@ -54,7 +56,7 @@ class OptionMenu:
         self.draw_progress_bar(self.music_canvas, self.music_volume)
         
         btn_music_up = tk.Button(music_frame, text="+", font=config_font.get_font(12), 
-                                 command=lambda: self.change_volume("music", 10),
+                                 command=lambda: [sound_manager.play_click_sound(), self.change_volume("music", 10)],
                                  width=5, fg="white", bg="gray")
         btn_music_up.pack(side="right", padx=5)
 
@@ -90,7 +92,7 @@ class OptionMenu:
 
         # Nút quay lại menu chính
         exit_button = tk.Button(self.root, text="Back to Menu", 
-                                command=self.back_to_menu, font=config_font.get_font(12),
+                                command=lambda: [sound_manager.play_click_sound(), self.back_to_menu()],
                                 fg="white", bg="#FF3399", width=15)
         exit_button.pack(pady=20)
 

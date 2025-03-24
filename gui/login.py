@@ -56,12 +56,12 @@ password_label = tkinter.Label(
 login_button = tkinter.Button(
     frame_buttons, text="Login", bg="#FF3399", fg="white",
     font=(config_font.get_font(10)), pady=10, padx=30, bd=0, relief="flat", cursor="hand2",
-    command=lambda: login(username_entry, password_entry)
+    command=lambda: [sound_manager.play_click_sound(), login(username_entry, password_entry)]
 )
 register_button = tkinter.Button(
     frame_buttons, text="Register", bg="#FF3399", fg="white",
     font=(config_font.get_font(10)), pady=10, padx=30, bd=0, relief="flat", cursor="hand2",
-    command=lambda: display_register()
+    command=lambda: [sound_manager.play_click_sound(), display_register()]
 )
 # login_button = tkinter.Button(
 #     frame,text="Login",bg="#FF3399",fg="white",font=(config_font.get_font(10)),
