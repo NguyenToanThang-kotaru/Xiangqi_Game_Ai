@@ -11,7 +11,7 @@ import math
 from game.game_logic import GameLogic
 from collections import defaultdict
 from game.suggestion import Suggestion
-# from ai.model import AIModel
+from ai.model import AIModel
 CELL_SIZE = 40  
 PIECE_RADIUS = CELL_SIZE // 2  
 
@@ -26,10 +26,10 @@ class Board:
         self.current_turn = "red"
         self.game_logic = GameLogic()
         self.fen_counts = defaultdict(int)
-        # self.ai = AIModel(self,self.game_logic)
+        self.ai = AIModel(self)
         self.selected_piece = None
         self.images = {}  # Khởi tạo dictionary rỗng
-
+        self.move_count = 0 
         self.suggestion = Suggestion(self.game_logic, self.canvas)
         self.draw_board()
         self.load_images()  # Load ảnh
@@ -139,6 +139,7 @@ class Board:
                         Board.board_state[y1][x1] = None
                         Suggestion.clear() # Xóa các nước đi gợi ý
                         self.selected_piece = None
+                        self.move_count += 1  
                         return 1
                 else:
                     Suggestion.clear()
@@ -156,6 +157,7 @@ class Board:
                     Board.board_state[y2][x2] = piece
                     Board.board_state[y1][x1] = None
                     self.selected_piece = None
+                    self.move_count += 1  
                     return 1  
 
 
@@ -200,8 +202,9 @@ class Board:
                 # Chuyển lượt sau khi di chuyển
                 self.game_logic.swap_turn()
                 Suggestion.clear()
-                # if self.game_logic.current_turn == "black":
-                #     self.make_ai_move()
+                if self.game_logic.current_turn == "black":
+                    self.make_ai_move()
+                    self.game_logic.swap_turn()
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
         # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
@@ -290,6 +293,7 @@ class Board:
     def make_ai_move(self):
         """Gọi AI để chọn nước đi"""
         ai_move = self.ai.get_ai_move()
+        print(f"AI Move: {ai_move}")
         if ai_move:
             piece, move = ai_move
             self.move_piece(piece, move)
@@ -327,16 +331,17 @@ class Board:
 
 
     def apply_move(self, move):
-        """Thực hiện nước đi từ ký hiệu như 'b2g2'."""
+        """Thực hiện nước đi từ ký hiệu như 'b2g2', nhưng đổi lại tọa độ để phù hợp với tiêu chuẩn."""
         columns = 'abcdefghi'
-        from_x, from_y = columns.index(move[0]), int(move[1])
-        to_x, to_y = columns.index(move[2]), int(move[3])
+        
+        from_x, from_y = columns.index(move[0]), 9 - int(move[1])  # Đảo ngược tọa độ y
+        to_x, to_y = columns.index(move[2]), 9 - int(move[3])  # Đảo ngược tọa độ y
 
         piece = Board.board_state[from_y][from_x]
         
         if piece:  # Kiểm tra nếu có quân cờ ở vị trí ban đầu
             self.move_piece(piece, (to_x, to_y))
-
+            self.game_logic.swap_turn()
     def fen_to_piece_name(self, char):
         """Chuyển ký hiệu quân cờ từ FEN về tên quân cờ của chương trình."""
         fen_map = {
@@ -350,8 +355,33 @@ class Board:
     def get_all_valid_moves(self, color):
         """Trả về danh sách các nước đi hợp lệ cho quân cờ có màu 'color'."""
         valid_moves = []
-        # Logic lấy các nước đi hợp lệ cho quân cờ với màu tương ứng
         for piece in self.pieces:
             if piece.color == color:
-                valid_moves.extend(piece.get_valid_moves(self))
+                for move in piece.get_valid_moves(self.board_state):  # ✅ Trả về (x2, y2)
+                    valid_moves.append((piece.x, piece.y, move[0], move[1]))  # ✅ Ghi nhận cả (x1, y1, x2, y2)
         return valid_moves
+        
+    
+    # def get_all_valid_moves(self, color):
+    #     """Trả về danh sách các nước đi hợp lệ cho quân cờ có màu 'color'."""
+    #     valid_moves = []
+    #     # Logic lấy các nước đi hợp lệ cho quân cờ với màu tương ứng
+    #     for piece in self.pieces:
+    #         if piece.color == color:
+    #             valid_moves.extend(piece.get_valid_moves(self.board_state))
+    #     return valid_moves
+    
+    # # def get_all_valid_moves(self, color):
+    # #     """Trả về danh sách các nước đi hợp lệ cho quân cờ có màu 'color'."""
+    # #     valid_moves = []
+    # #     for piece in self.pieces:
+    # #         if piece.color == color:
+    # #             for move in piece.get_valid_moves(self):  # move hiện tại chỉ là (x, y)
+    # #                 valid_moves.append((piece.x, piece.y, move[0], move[1]))  # Thêm tọa độ bắt đầu
+    # #     return valid_moves
+    def get_piece_at(self, x, y):
+        """Trả về quân cờ tại tọa độ (x, y), hoặc None nếu ô trống"""
+        return Board.board_state[y][x] 
+    def get_board_array(self):
+        """Chuyển bàn cờ thành danh sách 2D"""
+        return [[Board.board_state[y][x] for x in range(9)] for y in range(10)]

@@ -27,7 +27,7 @@ class AppState():
 
 
 
-    
+        
 window.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(window))
 
 def login(username_entry,password_entry):

@@ -1,99 +1,123 @@
 import requests
+import sys
+import os
 import mysql.connector
-import re
-import time
+import time  
 
-# ====== Cấu hình MySQL ======
-DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "",
-    "database": "xiangqi"
-}
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-# ====== Kết nối MySQL ======
-class DBManager:
-    def __init__(self):
+from database.db_manager import connect_db
+from game.board import Board
+from tkinter import Tk, Canvas
+
+# Tạo root nhưng không hiển thị cửa sổ
+root = Tk()
+root.withdraw()  
+fake_canvas = Canvas(root, width=1, height=1)
+
+board = Board(fake_canvas)  # Khởi tạo bàn cờ
+conn = connect_db()
+cursor = conn.cursor()
+
+def is_data_existing(fen, move):
+    """Kiểm tra xem FEN và nước đi đã tồn tại trong database chưa"""
+    cursor.execute("SELECT COUNT(*) FROM ai_training_data WHERE fen = %s AND move = %s", (fen, move))
+    return cursor.fetchone()[0] > 0  
+
+def fetch_and_store_moves(fen_string, max_retries=5):
+    """Gọi API, kiểm tra và lưu dữ liệu mới vào database"""
+    url = f"https://chessdb.cn/chessdb.php?action=queryall&board={fen_string}"
+    
+    for attempt in range(max_retries):
         try:
-            self.conn = mysql.connector.connect(**DB_CONFIG)
-            self.cursor = self.conn.cursor()
-            print("✅ Kết nối MySQL thành công!")
-        except mysql.connector.Error as err:
-            print(f"❌ Lỗi kết nối MySQL: {err}")
-            self.conn = None
+            response = requests.get(url, timeout=10)  
+            if "checkmate" in response.text.lower():
+                print(f"🚨 Checkmate! Không lưu FEN: {fen_string}")
+                return []  
 
-    def insert_training_data(self, game_id, move_number, prev_fen, move, new_fen, score, player):
-        """Lưu dữ liệu nước đi vào bảng training_data"""
-        if not self.conn:
-            print("⚠️ Không có kết nối MySQL, bỏ qua việc lưu dữ liệu.")
-            return
-        
-        result = "win" if score > 0 else "loss" if score < 0 else "draw"
-        
-        try:
-            insert_query = """
-                INSERT INTO training_data (game_id, move_number, prev_fen, move, new_fen, score, player, result, frequency) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """
-            self.cursor.execute(insert_query, (game_id, move_number, prev_fen, move, new_fen, score, player, result, 1))
-            self.conn.commit()
-            print(f"✅ Thêm mới: {prev_fen} -> {move} -> {new_fen} ({result})")
-        except mysql.connector.Error as err:
-            print(f"❌ Lỗi MySQL khi chèn dữ liệu: {err}")
+            if response.status_code != 200 or not response.text.strip():
+                print(f"❌ API lỗi, thử lại ({attempt + 1}/{max_retries})...")
+                time.sleep(2)  
+                continue
 
-    def close(self):
-        """Đóng kết nối MySQL."""
-        if self.conn:
-            self.cursor.close()
-            self.conn.close()
-            print("🔌 Kết nối MySQL đã đóng.")
+            moves_data = response.text.strip().split("|")  
+            new_moves = []
 
-# ====== Lấy nước đi tốt nhất từ API ======
-def get_best_move(fen):
-    """Gửi FEN lên API và lấy nước đi tốt nhất"""
-    url = f"http://www.chessdb.cn/chessdb.php?action=queryall&board={fen}"
-    try:
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200 and response.text.strip():
-            match = re.search(r"move:([a-z0-9]+),score:([-]?\d+)", response.text)
-            if match:
-                return match.group(1), int(match.group(2))  # (Nước đi, Điểm số)
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Lỗi API: {e}")
-    return None, None
+            for move_str in moves_data:
+                parts = move_str.split(",")  
+                move, score, rank, winrate = None, 0, None, 50.0  
 
-# ====== Lưu dữ liệu nước đi ======
-def simulate_game(initial_fen, db, game_id, max_moves=50):
-    """Lấy nước đi từ API và lưu vào database"""
-    current_fen = initial_fen
-    player = "red"  # Bắt đầu với bên đỏ
-    
-    print(f"🏁 Bắt đầu ván cờ mới! Game ID: {game_id}")
-    print(f"📌 Trạng thái khởi đầu: {current_fen}")
-    
-    for move_count in range(1, max_moves + 1):
-        best_move, score = get_best_move(current_fen)
-        if not best_move:
-            print("❌ Không tìm được nước đi hợp lệ! Dừng trò chơi.")
-            break
+                for part in parts:
+                    if part.startswith("move:"):
+                        move = part.split(":")[1]
+                    elif part.startswith("score:"):
+                        score = int(part.split(":")[1])
+                    elif part.startswith("rank:"):
+                        rank = int(part.split(":")[1])
+                    elif part.startswith("winrate:"):
+                        winrate = float(part.split(":")[1].replace("\x00", "").strip())
 
-        # Giả lập trạng thái FEN mới bằng cách thêm nước đi
-        new_fen = f"{current_fen} -> {best_move}"
-        
-        # Lưu dữ liệu vào MySQL
-        db.insert_training_data(game_id, move_count, current_fen, best_move, new_fen, score, player)
-        
-        current_fen = new_fen  # Cập nhật trạng thái mới
-        player = "black" if player == "red" else "red"  # Đổi bên đi
-        time.sleep(1)  # Nghỉ 1 giây trước lượt tiếp theo
-    
-    print("🏆 Trò chơi kết thúc!")
+                if move and not is_data_existing(fen_string, move):
+                    cursor.execute("""
+                        INSERT INTO ai_training_data (fen, move, score, rank, winrate)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (fen_string, move, score, rank, winrate))
+                    conn.commit()
+                    new_moves.append(move)
+                    print(f"✅ Đã lưu: {fen_string} -> {move} (Winrate: {winrate})")
 
-# ====== Chạy chương trình ======
-if __name__ == "__main__":
-    db = DBManager()
-    if db.conn:
-        initial_fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C2B2C1/9/RNBAKA1NR b"
-        game_id = int(time.time())  # Sử dụng timestamp làm game_id
-        simulate_game(initial_fen, db, game_id)
-        db.close()
+            return new_moves  
+
+        except requests.exceptions.RequestException as e:
+            print(f"🚨 Lỗi kết nối API: {e}. Thử lại ({attempt + 1}/{max_retries})...")
+            time.sleep(2)  
+
+    print("❌ Lỗi API liên tục, bỏ qua trạng thái này.")
+    return []
+
+def update_fen(fen, move):
+    """Cập nhật FEN dựa trên nước đi, đổi lượt đi"""
+    board.set_fen(fen)  
+    board.apply_move(move)  
+    new_fen = board.to_fen()  
+    return new_fen  
+
+def crawl_data(fen, depth=3, request_delay=2):
+    """Duyệt cây trạng thái bằng DFS, tạo FEN mới sau mỗi nước đi"""
+    visited_fen = set()
+    stack = [(fen, 0)]  
+
+    while stack:
+        current_fen, level = stack.pop()
+
+        if level >= depth:
+            continue  
+
+        if current_fen in visited_fen:
+            continue  
+        visited_fen.add(current_fen)
+
+        new_moves = fetch_and_store_moves(current_fen)
+        time.sleep(request_delay)  
+
+        if not new_moves:
+            continue  
+
+        for move in new_moves:
+            new_fen = update_fen(current_fen, move)  
+            print(f"♻️ Cập nhật FEN mới: {new_fen}")
+
+            if not is_data_existing(new_fen, move):
+                cursor.execute("""
+                    INSERT INTO ai_training_data (fen, move, score, rank, winrate)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (new_fen, move, 0, 0, 50.0))  
+                conn.commit()
+
+            stack.append((new_fen, level + 1))  
+
+initial_fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w"
+crawl_data(initial_fen, depth=3)
+
+cursor.close()
+conn.close()

@@ -1,3 +1,4 @@
+
 class GameLogic:
     def __init__(self):
         self.current_turn = "red"  # Đỏ đi trước
@@ -33,10 +34,11 @@ class GameLogic:
         x2, y2 = to_pos
         # if target_piece.color == piece.color and target_piece is not None:
         #     return True
-
+        from game.board import Board  # 🔥 Thêm dòng này để import Board
          #dùng haki quan sát lấy trạng thái của bàn cờ sau khi move
         new_board = self.get_board_state_after_move(board_state, piece, x2, y2)
-        
+        if isinstance(board_state, Board):
+            board_state = board_state.get_board_array()
         if "tot" in piece.name:
             return self.check_tot_move(piece, x2, y2,board_state) and not self.is_facing_king (new_board)
         elif "xe" in piece.name:
@@ -150,7 +152,7 @@ class GameLogic:
         if y2-y1 == 2: 
             if board_state[y1+1][x1] is None:
                 if x2-x1 == 1 or x2-x1 == -1:
-                    print("đi xuống")
+                
                     if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
                         return True
                     
@@ -158,7 +160,7 @@ class GameLogic:
         if y2-y1 == -2:
             if board_state[y1-1][x1] is None:
                 if x2-x1 == 1 or x2-x1 == -1:
-                    print("đi lên")
+                    
                     if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
                         return True
             
@@ -166,14 +168,14 @@ class GameLogic:
         if x2-x1 == 2:
             if board_state[y1][x1+1] is None:
                 if y2-y1 == 1 or y2-y1 == -1:
-                        print("phai")
+                        
                         if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
                             return True
 
         if x2-x1 == -2:
             if board_state[y1][x1-1] is None:
                 if y2-y1 == 1 or y2-y1 == -1:
-                        print("trai")
+                        
                         if target_piece is None or target_piece.color != piece.color:  # Ăn quân nếu khác màu
                             return True
 
@@ -243,10 +245,9 @@ class GameLogic:
                 if piece is not None:
                     if piece.name == "tuong_red":
                         tuong_red_pos = (x, y)
-                        print(f"Tướng đỏ ở: {tuong_red_pos}")
                     elif piece.name == "tuong_black":
                         tuong_black_pos = (x, y)
-                        print(f"Tướng đen ở: {tuong_black_pos}")
+
         
         # Kiểm tra trước khi unpack
         if tuong_red_pos is None or tuong_black_pos is None:
@@ -257,7 +258,6 @@ class GameLogic:
         x_black, y_black = tuong_black_pos
 
         if x_red != x_black:
-            print("2 quân tướng không cùng cột")
             return False  # 2 quân tướng không cùng cột
         
         # Kiểm tra xem có quân nào chặn giữa hai tướng không
@@ -267,16 +267,24 @@ class GameLogic:
         
         return True  # 2 tướng đối mặt
 
-    
+        
     # Hàm lấy trạng thái bàn cờ sau khi move
-    def get_board_state_after_move(self,board_state, piece, x2, y2):
-        x1, y1 = piece.x, piece.y
+    def get_board_state_after_move(self, board_state, piece, x2, y2):
+        """Tạo bản sao của bàn cờ sau khi di chuyển quân cờ"""
+        from game.board import Board  # 🔥 Thêm dòng này để import Board
+        # 🛠 Nếu board_state là đối tượng Board, lấy trạng thái bàn cờ
+        if isinstance(board_state, Board):  
+            board_state = board_state.get_board_array()  # ⚠ Cần hàm chuyển thành danh sách
+        
+        # 🛠 Kiểm tra lại board_state có phải danh sách không
+        if not isinstance(board_state, list):
+            raise TypeError(f"Expected board_state to be list, but got {type(board_state)}")
 
-        # Sao chép trạng thái bàn cờ để không ảnh hưởng bản gốc
+        # ⚠ Giờ board_state đã là danh sách, có thể sao chép an toàn
         new_board_state = [row[:] for row in board_state]
 
-        # Giả lập nước đi
-        new_board_state[y1][x1] = None  # Xóa quân ở vị trí cũ
-        new_board_state[y2][x2] = piece  # Đặt quân vào vị trí mới
+        x1, y1 = piece.x, piece.y
+        new_board_state[y1][x1] = None  
+        new_board_state[y2][x2] = piece  
 
         return new_board_state
