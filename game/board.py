@@ -342,6 +342,7 @@ class Board:
         if piece:  # Kiểm tra nếu có quân cờ ở vị trí ban đầu
             self.move_piece(piece, (to_x, to_y))
             self.game_logic.swap_turn()
+            
     def fen_to_piece_name(self, char):
         """Chuyển ký hiệu quân cờ từ FEN về tên quân cờ của chương trình."""
         fen_map = {
