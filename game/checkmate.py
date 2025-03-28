@@ -3,8 +3,9 @@ from game.game_logic import GameLogic
 logic = GameLogic()
 
 def is_checkmated(piece, board_state, pieces):
-    if is_checked(piece, board_state, pieces) == True:
-        if not is_king_have_valid_move(piece, board_state, pieces):
+    enemy_piece = is_checked(piece, board_state, pieces)
+    if enemy_piece != None:
+        if not is_king_have_valid_move(enemy_piece, board_state, pieces) and not is_other_pieces_have_valid_move(enemy_piece, piece, pieces, board_state):
             return True
     return False
 
@@ -16,8 +17,8 @@ def is_checked(piece, board_state, pieces):
             continue
         if logic.check_move(enemy_piece, (x, y), board_state):
             print("checked")
-            return True
-    return False
+            return enemy_piece
+    return None
     
     
 # check if the king has valid moves
@@ -62,3 +63,59 @@ def is_king_have_valid_move(piece, board_state, pieces):
         board_state[old_y][old_x] = piece
         piece.x, piece.y = old_x, old_y
     return False
+
+# check if there are valid moves for other pieces in order to block the attacking piece, or take the attacking piece
+def is_other_pieces_have_valid_move(attacking_piece, king_piece, pieces, board_state):
+    attacking_move = []
+    block_checkmate = []
+
+    x, y = king_piece.x, king_piece.y
+    attacking_move.append((attacking_piece.x, attacking_piece.y))
+
+    for col in range(9):
+        for row in range(10):
+            if logic.check_move(attacking_piece, (col, row), board_state):
+                # check if the attacking_piece moved to that position can still attack the king
+                original_x = attacking_piece.x
+                original_y = attacking_piece.y
+                tmp = board_state[attacking_piece.y][attacking_piece.x]
+                board_state[attacking_piece.y][attacking_piece.x] = None
+                board_state[row][col] = tmp
+                attacking_piece.x, attacking_piece.y = col, row
+                if logic.check_move(attacking_piece, (x, y), board_state):
+                    attacking_move.append((col, row))
+                board_state[row][col] = None
+                board_state[original_y][original_x] = tmp
+                attacking_piece.x, attacking_piece.y = original_x, original_y
+    
+    for piece in pieces:
+        if piece.color == king_piece.color:
+            for position in attacking_move:
+                if logic.check_move(piece, position, board_state):
+                    block_checkmate.append({piece: position})
+    
+    if block_checkmate == []:
+        return False
+    return True
+
+    """
+    
+    aim: check if there are valid moves for other pieces in order to block the attacking piece, or take the attacking piece
+    
+    things that we need to use:
+    king piece, attacking piece, pieces, board_state
+
+    create attacking_move[] 
+
+    add the attacking piece's position into attacking_move[]
+
+    check all of the position of the attacking_piece lies at the original position, if there are position that could attack the king again, add it into attacking_move[]
+
+    after that, for each piece that is friendly to the king, check if they can move legally to that position
+    
+    if yes, add it into block_checkmate[]
+    and we can return the block_checkmate afterwards
+
+    if no, continue the loop
+    if there are no piece that can go to any position in attacking_move => return false
+    """
