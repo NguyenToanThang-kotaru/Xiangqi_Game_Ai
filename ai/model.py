@@ -78,11 +78,11 @@ class AIModel:
 
         chosen_move = random.choice(best_moves)  
         print(f"✅ AI chọn nước đi: {chosen_move} với điểm {best_score}")
-        return chosen_move[1]  
+         
 
-        # chosen_move = random.choice(best_moves)  # Chọn ngẫu nhiên trong các nước đi tốt nhất
-        # print(f"✅ AI chọn nước đi: {chosen_move} với điểm {best_score}")
-        # return chosen_move[1]  # Trả về nước đi (không phải cả tuple)
+        chosen_move = random.choice(best_moves)  # Chọn ngẫu nhiên trong các nước đi tốt nhất
+        print(f"✅ AI chọn nước đi: {chosen_move} với điểm {best_score}")
+        return chosen_move[1]  # Trả về nước đi (không phải cả tuple)
 
     
     
@@ -109,7 +109,7 @@ class AIModel:
                     break  # Thoát vòng lặp khi tìm thấy quân cờ có thể đi
 
         if found_piece:
-            print(f"✅ AI chọn {found_piece} di chuyển đến {best_move}")
+            print(f"✅ AI chọn {found_piece} từ {found_piece.x,found_piece.y} di chuyển đến {best_move}")
             return found_piece, best_move  
 
         print("❌ Không có quân cờ nào có thể thực hiện nước đi này.")

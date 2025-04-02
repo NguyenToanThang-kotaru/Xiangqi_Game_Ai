@@ -251,7 +251,6 @@ class GameLogic:
         
         # Kiểm tra trước khi unpack
         if tuong_red_pos is None or tuong_black_pos is None:
-            print("Không tìm thấy quân tướng")
             return False
 
         x_red, y_red = tuong_red_pos

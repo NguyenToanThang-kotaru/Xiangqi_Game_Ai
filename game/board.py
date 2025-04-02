@@ -2,10 +2,10 @@ import random
 import tkinter as tk
 import sys
 import os
-from game.checkmate import is_checkmated, is_checked
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from game.checkmate import is_checkmated, is_checked
 from game.Piece import Piece
 import math
 from game.game_logic import GameLogic
@@ -14,8 +14,6 @@ from game.suggestion import Suggestion
 from ai.model import AIModel
 CELL_SIZE = 40  
 PIECE_RADIUS = CELL_SIZE // 2  
-
-CELL_SIZE = 40
 
 class Board:
     board_state = None
@@ -121,36 +119,45 @@ class Board:
         y1 = piece.y
         x2, y2 = to_pos
         target_piece = Board.board_state[y2][x2]
-        if x1==x2 and y1==y2:
+        if x1==x2 and y1==y2:   
             return 0
         if target_piece:
-            piece = Board.board_state[y1][x1]
+            # piece = Board.board_state[y1][x1]
+            # if piece is None:
+            #     print(y1,x1)
+            #     print("Không có quân cờ nào ở vị trí này")
+            #     return 0
+            print("target piece",target_piece.name)
+            print("target piece color",target_piece.color)
+            print("piece color",piece.color)
+            print("target piece",target_piece.name)
+            print("day la mau",piece.color, target_piece.color)
             if target_piece.color != piece.color:
                 if not self.game_logic.check_move(piece,to_pos,Board.board_state):
                     print("Di chuyen sai luat")
                     return 0
                 # find the king that have same color as piece, and check if it's gonna be attacked
-                king_piece = None
-                for p in self.pieces:
-                    if "tuong_" in p.name and p.color == piece.color:
-                        king_piece = p
-                        break
-                if king_piece is None:
-                    print("Error: Cannot find the king (file board.py line 139)")
-                    return 0
-                original_x = piece.x
-                original_y = piece.y
-                tmp = Board.board_state[y1][x1]
-                Board.board_state[y1][x1] = None
-                Board.board_state[y2][x2] = tmp
-                piece.x, piece.y = x2, y2
+                # king_piece = None
+                # for p in self.pieces:
+                #     if "tuong_" in p.name and p.color == piece.color:
+                #         king_piece = p
+                #         break
+                # if king_piece is None:
+                #     print("Error: Cannot find the king (file board.py line 139)")
+                #     return 0
+                # original_x = piece.x
+                # original_y = piece.y
+                # tmp = Board.board_state[y1][x1]
+                # Board.board_state[y1][x1] = None
+                # Board.board_state[y2][x2] = tmp
+                # piece.x, piece.y = x2, y2
 
-                if is_checked(king_piece, self.board_state, self.pieces) != None:
-                    print("Không đi được vì sẽ bị chiếu")
-                    Board.board_state[y2][x2] = target_piece
-                    Board.board_state[original_y][original_x] = tmp
-                    piece.x, piece.y = original_x, original_y
-                    return 0
+                # if is_checked(king_piece, self.board_state, self.pieces) != None:
+                #     print("Không đi được vì sẽ bị chiếu")
+                #     Board.board_state[y2][x2] = target_piece
+                #     Board.board_state[original_y][original_x] = tmp
+                #     piece.x, piece.y = original_x, original_y
+                #     return 0
                 
                 print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
                 self.pieces.remove(target_piece)
@@ -169,30 +176,30 @@ class Board:
                 self.suggestion.suggest(self.selected_piece, Board.board_state)
                 return 0
         else:    
-            if not self.game_logic.check_move(piece,to_pos,Board.board_state):
-                print("Di chuyen sai luat")
-                return 0
-            king_piece = None
-            for p in self.pieces:
-                if "tuong_" in p.name and p.color == piece.color:
-                    king_piece = p
-                    break
-            if king_piece is None:
-                print("Error: Cannot find the king (file board.py line 139)")
-                return 0
-            original_x = piece.x
-            original_y = piece.y
-            tmp = Board.board_state[y1][x1]
-            Board.board_state[y1][x1] = None
-            Board.board_state[y2][x2] = tmp
-            piece.x, piece.y = x2, y2
+            # if not self.game_logic.check_move(piece,to_pos,Board.board_state):
+            #     print("Di chuyen sai luat")
+            #     return 0
+            # king_piece = None
+            # for p in self.pieces:
+            #     if "tuong_" in p.name and p.color == piece.color:
+            #         king_piece = p
+            #         break
+            # if king_piece is None:
+            #     print("Error: Cannot find the king (file board.py line 139)")
+            #     return 0
+            # original_x = piece.x
+            # original_y = piece.y
+            # tmp = Board.board_state[y1][x1]
+            # Board.board_state[y1][x1] = None
+            # Board.board_state[y2][x2] = tmp
+            # piece.x, piece.y = x2, y2
 
-            if is_checked(king_piece, self.board_state, self.pieces) != None:
-                print("Không đi được vì sẽ bị chiếu")
-                Board.board_state[piece.y][piece.x] = None
-                Board.board_state[original_y][original_x] = tmp
-                piece.x, piece.y = original_x, original_y
-                return 0
+            # if is_checked(king_piece, self.board_state, self.pieces) != None:
+            #     print("Không đi được vì sẽ bị chiếu")
+            #     Board.board_state[piece.y][piece.x] = None
+            #     Board.board_state[original_y][original_x] = tmp
+            #     piece.x, piece.y = original_x, original_y
+            #     return 0
 
             piece.move(x2, y2)  
             print("Di chuyển quân",piece.name," đến (",to_pos,")")
@@ -210,6 +217,15 @@ class Board:
         col = round(event.x / CELL_SIZE) - 1  
         row = round(event.y / CELL_SIZE) - 1
 
+        # for piece in self.pieces:
+        #     if "tuong_" in piece.name:
+        #         if is_checkmated(piece, self.board_state, self.pieces):
+        #             if (piece.color == "red"):
+        #                 print("Red king is checkmated")
+        #             else:
+        #                 print("Black king is checkmated")
+        #             # self.canvas.unbind("<Button-1>")
+        #             return
         # trong trường hợp đã chọn quân cờ
         if self.selected_piece and 0<=col<9 and 0<=row<10:
             # Tạm thời không kiểm tra luật đi, chỉ thực hiện di chuyển
@@ -219,15 +235,6 @@ class Board:
                 # fen = self.to_fen()
                 # print(fen)
 
-                # check if the king is checkmated
-                for piece in self.pieces:
-                    if "tuong_" in piece.name:
-                        if is_checkmated(piece, self.board_state, self.pieces):
-                            if (piece.color == "red"):
-                                print("Red king is checkmated")
-                            else:
-                                print("Black king is checkmated")
-                            self.canvas.unbind("<Button-1>")
 
                 # --------------- Update FEN String to check repetition ---------------
 
@@ -243,11 +250,12 @@ class Board:
                 # Chuyển lượt sau khi di chuyển
                 self.game_logic.swap_turn()
                 Suggestion.clear()
-                # if self.game_logic.current_turn == "black":
-                #     self.make_ai_move()
-                #     self.game_logic.swap_turn()
+                if self.game_logic.current_turn == "black":
+                    self.make_ai_move()
+                    self.game_logic.swap_turn()
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
+                # check if the king is checkmated
         # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
         else:
             piece = self.get_piece_by_position(x, y)
@@ -398,25 +406,6 @@ class Board:
                 for move in piece.get_valid_moves(self.board_state):  # ✅ Trả về (x2, y2)
                     valid_moves.append((piece.x, piece.y, move[0], move[1]))  # ✅ Ghi nhận cả (x1, y1, x2, y2)
         return valid_moves
-        
-    
-    # def get_all_valid_moves(self, color):
-    #     """Trả về danh sách các nước đi hợp lệ cho quân cờ có màu 'color'."""
-    #     valid_moves = []
-    #     # Logic lấy các nước đi hợp lệ cho quân cờ với màu tương ứng
-    #     for piece in self.pieces:
-    #         if piece.color == color:
-    #             valid_moves.extend(piece.get_valid_moves(self.board_state))
-    #     return valid_moves
-    
-    # # def get_all_valid_moves(self, color):
-    # #     """Trả về danh sách các nước đi hợp lệ cho quân cờ có màu 'color'."""
-    # #     valid_moves = []
-    # #     for piece in self.pieces:
-    # #         if piece.color == color:
-    # #             for move in piece.get_valid_moves(self):  # move hiện tại chỉ là (x, y)
-    # #                 valid_moves.append((piece.x, piece.y, move[0], move[1]))  # Thêm tọa độ bắt đầu
-    # #     return valid_moves
     def get_piece_at(self, x, y):
         """Trả về quân cờ tại tọa độ (x, y), hoặc None nếu ô trống"""
         return Board.board_state[y][x] 
