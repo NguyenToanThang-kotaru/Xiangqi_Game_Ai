@@ -32,17 +32,23 @@ class GameLogic:
                     if "tuong_" in piece.name and piece.color == color:
                         return piece
         return None
+
+    def is_king_safe(self, piece, to_pos, board_state):
+        new_board = self.get_board_state_after_move(board_state, piece, to_pos[0], to_pos[1])
+        king_piece = self.find_king(new_board, piece.color)
+        return self.is_checked(king_piece, new_board)
     
     def is_checked(self, king_piece, board_state):
+        if king_piece is None:
+            print("Error: King piece is missing")
+            return None
         king_x, king_y = king_piece.x, king_piece.y
         for y in range(10):
             for x in range(9):
                 enemy = board_state[y][x]
-                if enemy is not None:
-                    if enemy.color == king_piece.color:
-                        continue
+                if enemy is not None and enemy.color != king_piece.color:
                     if self.check_move(enemy, (king_x, king_y), board_state):
-                        print("checked")
+                        print(f"checked by {enemy.name} in position ({enemy.x}, {enemy.y})\n")
                         return enemy
         return None
 
@@ -63,28 +69,25 @@ class GameLogic:
         for row in range(10):
             for col in range(9):
                 if self.check_move(attacking_piece, (col, row), board_state):
-                    # create temporary board state
-                    from game.board import Board  # Import Board for board state handling
-                    new_board = self.get_board_state_after_move(board_state, attacking_piece, col, row)
-
-                    original_x, original_y = attacking_piece.x, attacking_piece.y
-                    attacking_piece.x, attacking_piece.y = col, row
-
-                    if self.check_move(attacking_piece, (king_x, king_y), new_board):
-                        attacking_moves.append((col, row))
-                    attacking_piece.x, attacking_piece.y = original_x, original_y
+                    attacking_moves.append((col, row))
 
         for y in range(10):
             for x in range(9):
                 piece = board_state[y][x]
                 if piece is not None:
-                    print("Piece found")
                     if piece.color == king_piece.color:
                         for position in attacking_moves:
                             if self.check_move(piece, position, board_state):
-                                block_checkmate.append({piece: position})    
-                else:
-                    print("Cannot find the piece inside the is_other_have_valid_move() function")
+                                block_checkmate.append({piece: position}) 
+
+        # Check if the king can move to a safe position
+        for row in range(10):
+            for col in range(9):
+                if self.check_move(king_piece, (col, row), board_state):
+                    # Simulate the move
+                    new_board = self.get_board_state_after_move(board_state, king_piece, col, row)
+                    if not self.is_checked(king_piece, new_board):
+                        block_checkmate.append({king_piece: (col, row)})   
         return len(block_checkmate) > 0
 
 
@@ -332,6 +335,10 @@ class GameLogic:
 
         x1, y1 = piece.x, piece.y
         new_board_state[y1][x1] = None  
-        new_board_state[y2][x2] = piece  
+        import copy
+        piece_copy = copy.copy(piece)
+        piece_copy.x, piece_copy.y = x2, y2
+        new_board_state[y2][x2] = piece_copy
+        # new_board_state[y2][x2] = piece  
 
         return new_board_state

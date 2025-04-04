@@ -130,9 +130,9 @@ class Board:
                     print("Di chuyen sai luat")
                     return 0
                 # find the king that have same color as piece, and check if it's gonna be attacked
-                # if self.game_logic.is_checked(self.game_logic.find_king(self.board_state, piece.color), self.board_state) != None:
-                #     print("Không đi được vì sẽ bị chiếu")
-                #     return 0
+                if self.game_logic.is_king_safe(piece, to_pos, Board.board_state) != None:
+                    print("Không đi được vì sẽ bị chiếu - di chuyển quân")
+                    return 0
                 
                 print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
                 self.pieces.remove(target_piece)
@@ -155,9 +155,10 @@ class Board:
                 print("Di chuyen sai luat")
                 return 0
             # find the king that have same color as piece, and check if it's gonna be attacked
-            # if self.game_logic.is_checked(self.game_logic.find_king(self.board_state, piece.color), self.board_state) != None:
-            #     print("Không đi được vì sẽ bị chiếu")
-            #     return 0
+            # create temporary board state
+            if self.game_logic.is_king_safe(piece, to_pos, Board.board_state) != None:
+                print("Không đi được vì sẽ bị chiếu - di chuyển quân")
+                return 0
 
 
             piece.move(x2, y2)  
@@ -186,15 +187,15 @@ class Board:
                 # print(fen)
 
                 # check if the king is checkmated
-                # red_king = self.game_logic.find_king(self.board_state, "red")
-                # black_king = self.game_logic.find_king(self.board_state, "black")
+                red_king = self.game_logic.find_king(self.board_state, "red")
+                black_king = self.game_logic.find_king(self.board_state, "black")
 
-                # if red_king and self.game_logic.is_checkmated(red_king, self.board_state):
-                #     print("Red king is checkmated")
-                #     self.canvas.unbind("<Button-1>")
-                # elif black_king and self.game_logic.is_checkmated(black_king, self.board_state):
-                #     print("Black king is checkmated")
-                #     self.canvas.unbind("<Button-1>")
+                if red_king and self.game_logic.is_checkmated(red_king, self.board_state):
+                    print("Red king is checkmated")
+                    self.canvas.unbind("<Button-1>")
+                elif black_king and self.game_logic.is_checkmated(black_king, self.board_state):
+                    print("Black king is checkmated")
+                    self.canvas.unbind("<Button-1>")
     
                 # --------------- Update FEN String to check repetition ---------------
 
