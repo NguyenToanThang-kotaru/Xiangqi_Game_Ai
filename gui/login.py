@@ -1,6 +1,7 @@
 import sys
 import os
 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from database.function_db.db_login import check_login
@@ -9,6 +10,7 @@ import tkinter
 import config_font 
 from register import openRegister
 from sound_manager import SoundManager
+from tkinter import PhotoImage
                     
 window = tkinter.Tk()
 window.title("Xiangqi")
@@ -24,10 +26,11 @@ config_font.center_window(window, 800, 440)
 sound_manager = SoundManager()
 class AppState():
     flag_login = False
+    sound_on = True # Lưu trạng thái âm thanh
 
 
 
-    
+        
 window.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(window))
 
 def login(username_entry,password_entry):
@@ -85,6 +88,28 @@ password_entry.grid(row=2,column=1,pady=20)
 login_button.pack(side="left", padx=10)
 register_button.pack(side="right", padx=10)
 
+# Biến lưu trạng thái âm thanh (True: bật, False: tắt)
+sound_on = True
+
+
+def toggle_sound():
+    global sound_on
+    sound_on = not sound_on
+    if sound_on:
+        sound_button.config(text="🔊 Sound On")
+        sound_manager.unmute() # Bật âm thanh
+    else:
+        sound_button.config(text="🔇 Sound Off")
+        sound_manager.mute() # Tắt âm thanh
+        sound_manager.set_music_volume(0)
+
+sound_button = tkinter.Button(
+    window, text="🔊 Sound On", bg="#FF3399", fg="white",
+    font=(config_font.get_font(10)), bd=0, relief="flat", cursor="hand2",
+    command=toggle_sound
+)
+
+sound_button.pack(side="bottom", anchor="w", padx=20, pady=20) # Đặt ở góc dưới bên trái
 
 
 
@@ -108,6 +133,15 @@ def display_menu(flag):
         config_font.reset_entry(password_entry)
         window.withdraw()
         openMenu(window)
+
+        # 
+        if AppState.sound_on:
+            sound_button.config(text="🔊 Sound Om")
+            sound_manager.unmute()
+        else:
+            sound_button.config(text="🔇 Sound Off")
+            sound_manager.mute()
+            sound_manager.set_volume(0)
     else:
         WrongPassWord.grid(row=3,column=0,columnspan=2,sticky="s")
 

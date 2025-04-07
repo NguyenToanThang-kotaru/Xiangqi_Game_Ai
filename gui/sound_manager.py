@@ -17,6 +17,7 @@ class SoundManager:
         pygame.mixer.init()
         self.sound_folder = os.path.abspath(sound_folder)  # Đảm bảo đường dẫn tuyệt đối
         self.music_volume = 0.5 # Mặc định 50%
+        self.sound_enabled = True # Trạng thái âm thanh (True: bật, False: tắt)
 
         # Đường dẫn file nhạc nền
         self.music_file = os.path.join(self.sound_folder, "Theme_menu.mp3")
@@ -50,3 +51,13 @@ class SoundManager:
     def stop_music(self):
         # Dừng nhạc nền
         pygame.mixer.music.stop()
+
+    def mute(self):
+        # Tắt toàn bộ âm thanh
+        self.sound_enabled = False
+        pygame.mixer.music.set_volume(0)
+
+    def unmute(self):
+        # Bật lại toàn bộ âm thanh
+        self.sound_enabled = True
+        pygame.mixer.music.set_volume(self.music_volume)

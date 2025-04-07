@@ -1,54 +1,26 @@
-import tkinter as tk
+import sys
+import os
 
-CELL_SIZE = 80  # Kích thước ô cờ
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-class Piece:
-    def __init__(self, canvas, name, x, y, color):
-        self.canvas = canvas
-        self.name = name
-        self.x = x
-        self.y = y
-        self.color = color
-        self.id = canvas.create_oval(
-            x * CELL_SIZE + 10, y * CELL_SIZE + 10, 
-            (x + 1) * CELL_SIZE - 10, (y + 1) * CELL_SIZE - 10, 
-            fill=color
-        )
+from tkinter import Tk, Canvas
+from game.board import Board
 
-    def move(self, x, y):
-        self.x = x
-        self.y = y
-        self.canvas.coords(
-            self.id, 
-            x * CELL_SIZE + 10, y * CELL_SIZE + 10, 
-            (x + 1) * CELL_SIZE - 10, (y + 1) * CELL_SIZE - 10
-        )
-
-# ================== MAIN GAME ==================
-root = tk.Tk()
-root.title("Cờ Tướng - Click để di chuyển")
-
-canvas = tk.Canvas(root, width=9 * CELL_SIZE, height=10 * CELL_SIZE, bg="white")
-canvas.pack()
-
-# Tạo một quân cờ màu đỏ ở vị trí (4, 4)
-piece = Piece(canvas, "Tướng", 4, 4, "red")
-
-selected_piece = None
-
-def on_click(event):
-    global selected_piece
-    x, y = event.x // CELL_SIZE, event.y // CELL_SIZE
+def update_fen(fen, move):
+    """Hàm cập nhật trạng thái FEN dựa trên nước đi"""
+    root = Tk()
+    root.withdraw()  # Ẩn cửa sổ GUI
+    fake_canvas = Canvas(root, width=1, height=1)
     
-    if selected_piece:
-        # Nếu đã chọn quân, di chuyển quân cờ đến vị trí mới
-        selected_piece.move(x, y)
-        selected_piece = None  # Bỏ chọn
-    else:
-        # Chọn quân cờ nếu click vào nó
-        if piece.x == x and piece.y == y:
-            selected_piece = piece  # Lưu quân cờ đang chọn
+    board = Board(fake_canvas)  # Tạo board với canvas giả
+    board.set_fen(fen)  # Đặt trạng thái bàn cờ từ FEN
+    board.apply_move(move)  # Áp dụng nước đi
+    
+    return board.to_fen()  # Trả về FEN mới
 
-canvas.bind("<Button-1>", on_click)  # Lắng nghe sự kiện click chuột trái
+# Ví dụ sử dụng
 
-root.mainloop()
+fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/P1P1P1P1P/9/C1N1B1N1C/R3A3R/2BAK4 b"
+move = "h2h2"
+new_fen = update_fen(fen, move)
+print(new_fen)
