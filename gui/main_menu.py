@@ -8,7 +8,7 @@ sound_manager = SoundManager()
 
 def display_vsAI(menu, main_window):
     menu.withdraw()
-    PlayvsAI.create_PlayvsAI(main_window,menu)
+    PlayvsAI.create_PlayvsAI(main_window,menu,sound_manager)
 
 def display_option_menu(menu,main_window): # Hàm mở menu cài đặt
     OptionMenu(menu,main_window)
@@ -42,10 +42,10 @@ def openMenu(main_window):
         frameMenu,text="Main Menu",bg="#333333",fg="#FF3399",pady=50,font=config_font.get_font(20))
     menu_label.pack()
     vs_ai_button = Option(frameMenu,"PLAY VS AI", lambda: display_vsAI(menu, main_window))
-    vs_ai_button.config(command=lambda: display_vsAI(menu, main_window))
+    #vs_ai_button.config(command=lambda: display_vsAI(menu, main_window))
     vs_player_button = Option(frameMenu,"PLAYER VS PLAYER")
     option_button = Option(frameMenu,"OPTION", lambda: display_option_menu(menu, main_window))
-    option_button.config(command=lambda: display_option_menu(menu,main_window)) # Gọi menu cài đặt
+    #option_button.config(command=lambda: display_option_menu(menu,main_window)) # Gọi menu cài đặt
     logout_button = Option(frameMenu,"LOGOUT", lambda: config_font.change_gate(menu, main_window))
-    logout_button.config(command=lambda: config_font.change_gate(menu,main_window))
+    #logout_button.config(command=lambda: config_font.change_gate(menu,main_window))
     menu.mainloop()

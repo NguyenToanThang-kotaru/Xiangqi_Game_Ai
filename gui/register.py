@@ -1,6 +1,9 @@
 import tkinter as tk
 import config_font
 from database.function_db.db_regis import check_username, check_password, add_account
+from sound_manager import SoundManager
+
+sound_manager = SoundManager()
 
 # Initialize the labels as None
 UsedUsername = None
@@ -72,13 +75,13 @@ def openRegister(main_window):
     register_button = tk.Button(
         button_frame, text="Register", bg="#FF3399", fg="white",
         font=config_font.get_font(10), pady=10, padx=30, bd=0, relief="flat", cursor="hand2",
-        command=lambda: register(username_entry, password_entry, re_password_entry,register_window, main_window)
+        command=lambda: [sound_manager.play_click_sound(), register(username_entry, password_entry, re_password_entry, register_window, main_window)]
     )
 
     cancel_button = tk.Button(
         button_frame, text="Cancel", bg="#FF3399", fg="white",
         font=config_font.get_font(10), pady=10, padx=30, bd=0, relief="flat", cursor="hand2",
-        command=lambda: config_font.change_gate(register_window, main_window)
+        command=lambda: [sound_manager.play_click_sound(), config_font.change_gate(register_window, main_window)]
     )
 
     register_label.grid(row=0, column=0, columnspan=2, sticky="nsew", pady=40)

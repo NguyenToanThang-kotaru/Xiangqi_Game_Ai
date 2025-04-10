@@ -11,10 +11,11 @@ import config_font
 from register import openRegister
 from sound_manager import SoundManager
 from tkinter import PhotoImage
+from appState import AppState
                     
 window = tkinter.Tk()
 window.title("Xiangqi")
-window.geometry("800x440")  
+window.geometry("800x440")
 window.configure(bg="#333333")
 frame=tkinter.Frame(window,bg="#333333")
 frame_buttons = tkinter.Frame(frame, bg="#333333")
@@ -24,12 +25,6 @@ config_font.center_window(window, 800, 440)
 
 # Khởi tạo quản lý âm thanh
 sound_manager = SoundManager()
-class AppState():
-    flag_login = False
-    sound_on = True # Lưu trạng thái âm thanh
-
-
-
         
 window.protocol("WM_DELETE_WINDOW", lambda: config_font.close_all(window))
 
@@ -95,6 +90,7 @@ sound_on = True
 def toggle_sound():
     global sound_on
     sound_on = not sound_on
+    AppState.sound_on = sound_on # Đồng bộ AppState
     if sound_on:
         sound_button.config(text="🔊 Sound On")
         sound_manager.unmute() # Bật âm thanh
@@ -102,6 +98,7 @@ def toggle_sound():
         sound_button.config(text="🔇 Sound Off")
         sound_manager.mute() # Tắt âm thanh
         sound_manager.set_music_volume(0)
+    sound_manager.play_click_sound()
 
 sound_button = tkinter.Button(
     window, text="🔊 Sound On", bg="#FF3399", fg="white",
@@ -134,14 +131,12 @@ def display_menu(flag):
         window.withdraw()
         openMenu(window)
 
-        # 
         if AppState.sound_on:
-            sound_button.config(text="🔊 Sound Om")
+            sound_button.config(text="🔊 Sound On")
             sound_manager.unmute()
         else:
             sound_button.config(text="🔇 Sound Off")
             sound_manager.mute()
-            sound_manager.set_volume(0)
     else:
         WrongPassWord.grid(row=3,column=0,columnspan=2,sticky="s")
 

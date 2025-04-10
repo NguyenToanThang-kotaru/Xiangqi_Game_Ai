@@ -2,7 +2,7 @@ import random
 import tkinter as tk
 import sys
 import os
-# from game.checkmate import is_checkmated
+# from game.checkmate import is_checkmated, is_checked
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -123,43 +123,51 @@ class Board:
         target_piece = Board.board_state[y2][x2]
         if x1==x2 and y1==y2:
             return 0
-        else:
-            if target_piece:
-                piece = Board.board_state[y1][x1]
-                if target_piece.color != piece.color:
-                    if not self.game_logic.check_move(piece,to_pos,Board.board_state):
-                        print("Di chuyen sai luat")
-                        return 0
-                    else: 
-                        print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
-                        self.pieces.remove(target_piece)
-                        self.canvas.delete(target_piece.id)
-                        piece.move(x2, y2) # Cập nhật trạng thái
-                        Board.board_state[y2][x2] = piece
-                        Board.board_state[y1][x1] = None
-                        Suggestion.clear() # Xóa các nước đi gợi ý
-                        self.selected_piece = None
-                        self.move_count += 1  
-                        return 1
-                else:
-                    Suggestion.clear()
-                    print("đã chuyển đổi từ quân ",piece.name ,"sang ")
-                    self.selected_piece = target_piece
-                    self.suggestion.suggest(self.selected_piece, Board.board_state)
-                    return 0
-            else:    
+        if target_piece:
+            piece = Board.board_state[y1][x1]
+            if target_piece.color != piece.color:
                 if not self.game_logic.check_move(piece,to_pos,Board.board_state):
                     print("Di chuyen sai luat")
                     return 0
-                else:
-                    piece.move(x2, y2)  
-                    print("Di chuyển quân",piece.name," đến (",to_pos,")")
-                    Board.board_state[y2][x2] = piece
-                    Board.board_state[y1][x1] = None
-                    self.selected_piece = None
-                    self.move_count += 1  
-                    return 1  
+                # find the king that have same color as piece, and check if it's gonna be attacked
+                if self.game_logic.is_king_safe(piece, to_pos, Board.board_state) != None:
+                    print("Không đi được vì sẽ bị chiếu - di chuyển quân")
+                    return 0
+                
+                print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
+                self.pieces.remove(target_piece)
+                self.canvas.delete(target_piece.id)
+                piece.move(x2, y2) # Cập nhật trạng thái
+                Board.board_state[y2][x2] = piece
+                Board.board_state[y1][x1] = None
+                Suggestion.clear() # Xóa các nước đi gợi ý
+                self.selected_piece = None
+                self.move_count += 1  
+                return 1
+            else:
+                Suggestion.clear()
+                print("đã chuyển đổi từ quân ",piece.name ,"sang ")
+                self.selected_piece = target_piece
+                self.suggestion.suggest(self.selected_piece, Board.board_state)
+                return 0
+        else:    
+            if not self.game_logic.check_move(piece,to_pos,Board.board_state):
+                print("Di chuyen sai luat")
+                return 0
+            # find the king that have same color as piece, and check if it's gonna be attacked
+            # create temporary board state
+            if self.game_logic.is_king_safe(piece, to_pos, Board.board_state) != None:
+                print("Không đi được vì sẽ bị chiếu - di chuyển quân")
+                return 0
 
+
+            piece.move(x2, y2)  
+            print("Di chuyển quân",piece.name," đến (",to_pos,")")
+            Board.board_state[y2][x2] = piece
+            Board.board_state[y1][x1] = None
+            self.selected_piece = None
+            self.move_count += 1  
+            return 1  
 
     def on_click(self, event):
         """Xử lý click: chọn hoặc di chuyển quân cờ"""
@@ -179,15 +187,16 @@ class Board:
                 # print(fen)
 
                 # check if the king is checkmated
-                # for piece in self.pieces:
-                #     if "tuong_" in piece.name:
-                #         if is_checkmated(piece, self.board_state, self.pieces):
-                #             if (piece.color == "red"):
-                #                 print("Red king is checkmated")
-                #             else:
-                #                 print("Black king is checkmated")
-                #             self.canvas.unbind("<Button-1>")
+                red_king = self.game_logic.find_king(self.board_state, "red")
+                black_king = self.game_logic.find_king(self.board_state, "black")
 
+                if red_king and self.game_logic.is_checkmated(red_king, self.board_state):
+                    print("Red king is checkmated")
+                    self.canvas.unbind("<Button-1>")
+                elif black_king and self.game_logic.is_checkmated(black_king, self.board_state):
+                    print("Black king is checkmated")
+                    self.canvas.unbind("<Button-1>")
+    
                 # --------------- Update FEN String to check repetition ---------------
 
                 fen = self.to_fen()
@@ -202,9 +211,9 @@ class Board:
                 # Chuyển lượt sau khi di chuyển
                 self.game_logic.swap_turn()
                 Suggestion.clear()
-                if self.game_logic.current_turn == "black":
-                    self.make_ai_move()
-                    self.game_logic.swap_turn()
+                # if self.game_logic.current_turn == "black":
+                #     self.make_ai_move()
+                #     self.game_logic.swap_turn()
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
         # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
@@ -218,8 +227,6 @@ class Board:
             else:
                 print("Không thể chọn quân vì sai màu!")
                 self.selected_piece = None
-
-
 
     def get_piece_by_position(self, x_click, y_click):
         """Tìm quân cờ gần nhất với vị trí click"""
@@ -327,8 +334,6 @@ class Board:
                     x += 1
 
         self.current_turn = 'red' if turn_part == 'w' else 'black'
-
-
 
     def apply_move(self, move):
         """Thực hiện nước đi từ ký hiệu như 'b2g2', nhưng đổi lại tọa độ để phù hợp với tiêu chuẩn."""

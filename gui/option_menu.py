@@ -1,8 +1,8 @@
 import tkinter as tk
 import config_font  # Import để dùng chung font chữ
 from sound_manager import SoundManager
+from appState import AppState
 
-sound_manager = SoundManager()
 
 class OptionMenu:
     def __init__(self, menu, main_window):
@@ -10,7 +10,12 @@ class OptionMenu:
         self.root = tk.Toplevel()
 
         # Lấy đối tượng quản lý âm thanh
-        self.sound_manager = SoundManager()
+        self.sound_manager = SoundManager() 
+        if AppState.sound_on:
+            self.sound_manager.unmute()
+        else:
+            self.sound_manager.mute()
+
         self.music_volume = 50
         self.sfx_volume = 50 
 
@@ -32,10 +37,13 @@ class OptionMenu:
         difficulty_frame.pack(pady=10)
         
         tk.Button(difficulty_frame, text="Easy", font=config_font.get_font(12), 
+                  command=lambda: [self.sound_manager.play_click_sound()],
                   fg="white", bg="green", width=10).pack(side="left", padx=5)
         tk.Button(difficulty_frame, text="Medium", font=config_font.get_font(12), 
+                  command=lambda: [self.sound_manager.play_click_sound()],
                   fg="white", bg="orange", width=10).pack(side="left", padx=5)
         tk.Button(difficulty_frame, text="Hard", font=config_font.get_font(12), 
+                  command=lambda: [self.sound_manager.play_click_sound()],
                   fg="white", bg="red", width=10).pack(side="left", padx=5)
 
         # Âm lượng nhạc nền
@@ -47,7 +55,7 @@ class OptionMenu:
         music_frame = tk.Frame(self.root, bg="black")
         music_frame.pack()
         btn_music_down = tk.Button(music_frame, text="-", font=config_font.get_font(12), 
-                                 command=lambda: [sound_manager.play_click_sound(), self.change_volume("music", -10)],
+                                 command=lambda: [self.sound_manager.play_click_sound(), self.change_volume("music", -10)],
                                  width=5, fg="white", bg="gray")
         btn_music_down.pack(side="left", padx=5)
         
@@ -56,7 +64,7 @@ class OptionMenu:
         self.draw_progress_bar(self.music_canvas, self.music_volume)
         
         btn_music_up = tk.Button(music_frame, text="+", font=config_font.get_font(12), 
-                                 command=lambda: [sound_manager.play_click_sound(), self.change_volume("music", 10)],
+                                 command=lambda: [self.sound_manager.play_click_sound(), self.change_volume("music", 10)],
                                  width=5, fg="white", bg="gray")
         btn_music_up.pack(side="right", padx=5)
 
@@ -69,7 +77,7 @@ class OptionMenu:
         sfx_frame = tk.Frame(self.root, bg="black")
         sfx_frame.pack()
         btn_sfx_down = tk.Button(sfx_frame, text="-", font=config_font.get_font(12), 
-                                 command=lambda: self.change_volume("sfx", -10),
+                                 command=lambda: [self.sound_manager.play_click_sound(), self.change_volume("sfx", -10)],
                                  width=5, fg="white", bg="gray")
         btn_sfx_down.pack(side="left", padx=5)
         
@@ -78,7 +86,7 @@ class OptionMenu:
         self.draw_progress_bar(self.sfx_canvas, self.sfx_volume)
         
         btn_sfx_up = tk.Button(sfx_frame, text="+", font=config_font.get_font(12), 
-                               command=lambda: self.change_volume("sfx", 10),
+                               command=lambda: [self.sound_manager.play_click_sound(), self.change_volume("sfx", 10)],
                                width=5, fg="white", bg="gray")
         btn_sfx_up.pack(side="right", padx=5)
 
@@ -92,7 +100,7 @@ class OptionMenu:
 
         # Nút quay lại menu chính
         exit_button = tk.Button(self.root, text="Back to Menu", 
-                                command=lambda: [sound_manager.play_click_sound(), self.back_to_menu()],
+                                command=lambda: [self.sound_manager.play_click_sound(), self.back_to_menu()],
                                 fg="white", bg="#FF3399", width=15)
         exit_button.pack(pady=20)
 
