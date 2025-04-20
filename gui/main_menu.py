@@ -10,7 +10,7 @@ def display_vsAI(menu, main_window):
 
 def display_vsPlayer(menu, main_window):
     menu.withdraw()
-    PlayvsPlayer.create_PlayvsPlayer(main_window, menu)
+    PlayvsPlayer.create_PlayvsPlayer(main_window,menu)
 
 def display_option_menu(menu,main_window): # Hàm mở menu cài đặt
     OptionMenu(menu,main_window)
