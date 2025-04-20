@@ -2,10 +2,11 @@ import random
 import tkinter as tk
 import sys
 import os
+# from game.checkmate import is_checkmated, is_checked
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from game.checkmate import is_checkmated, is_checked
+# from game.checkmate import is_checkmated, is_checked
 from game.Piece import Piece
 import math
 from game.game_logic import GameLogic
@@ -137,27 +138,9 @@ class Board:
                     print("Di chuyen sai luat")
                     return 0
                 # find the king that have same color as piece, and check if it's gonna be attacked
-                # king_piece = None
-                # for p in self.pieces:
-                #     if "tuong_" in p.name and p.color == piece.color:
-                #         king_piece = p
-                #         break
-                # if king_piece is None:
-                #     print("Error: Cannot find the king (file board.py line 139)")
-                #     return 0
-                # original_x = piece.x
-                # original_y = piece.y
-                # tmp = Board.board_state[y1][x1]
-                # Board.board_state[y1][x1] = None
-                # Board.board_state[y2][x2] = tmp
-                # piece.x, piece.y = x2, y2
-
-                # if is_checked(king_piece, self.board_state, self.pieces) != None:
-                #     print("Không đi được vì sẽ bị chiếu")
-                #     Board.board_state[y2][x2] = target_piece
-                #     Board.board_state[original_y][original_x] = tmp
-                #     piece.x, piece.y = original_x, original_y
-                #     return 0
+                if self.game_logic.is_king_safe(piece, to_pos, Board.board_state) != None:
+                    print("Không đi được vì sẽ bị chiếu - di chuyển quân")
+                    return 0
                 
                 print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
                 self.pieces.remove(target_piece)
@@ -176,30 +159,15 @@ class Board:
                 self.suggestion.suggest(self.selected_piece, Board.board_state)
                 return 0
         else:    
-            # if not self.game_logic.check_move(piece,to_pos,Board.board_state):
-            #     print("Di chuyen sai luat")
-            #     return 0
-            # king_piece = None
-            # for p in self.pieces:
-            #     if "tuong_" in p.name and p.color == piece.color:
-            #         king_piece = p
-            #         break
-            # if king_piece is None:
-            #     print("Error: Cannot find the king (file board.py line 139)")
-            #     return 0
-            # original_x = piece.x
-            # original_y = piece.y
-            # tmp = Board.board_state[y1][x1]
-            # Board.board_state[y1][x1] = None
-            # Board.board_state[y2][x2] = tmp
-            # piece.x, piece.y = x2, y2
+            if not self.game_logic.check_move(piece,to_pos,Board.board_state):
+                print("Di chuyen sai luat")
+                return 0
+            # find the king that have same color as piece, and check if it's gonna be attacked
+            # create temporary board state
+            if self.game_logic.is_king_safe(piece, to_pos, Board.board_state) != None:
+                print("Không đi được vì sẽ bị chiếu - di chuyển quân")
+                return 0
 
-            # if is_checked(king_piece, self.board_state, self.pieces) != None:
-            #     print("Không đi được vì sẽ bị chiếu")
-            #     Board.board_state[piece.y][piece.x] = None
-            #     Board.board_state[original_y][original_x] = tmp
-            #     piece.x, piece.y = original_x, original_y
-            #     return 0
 
             piece.move(x2, y2)  
             print("Di chuyển quân",piece.name," đến (",to_pos,")")
@@ -235,7 +203,17 @@ class Board:
                 # fen = self.to_fen()
                 # print(fen)
 
+                # check if the king is checkmated
+                red_king = self.game_logic.find_king(self.board_state, "red")
+                black_king = self.game_logic.find_king(self.board_state, "black")
 
+                if red_king and self.game_logic.is_checkmated(red_king, self.board_state):
+                    print("Red king is checkmated")
+                    self.canvas.unbind("<Button-1>")
+                elif black_king and self.game_logic.is_checkmated(black_king, self.board_state):
+                    print("Black king is checkmated")
+                    self.canvas.unbind("<Button-1>")
+    
                 # --------------- Update FEN String to check repetition ---------------
 
                 fen = self.to_fen()
