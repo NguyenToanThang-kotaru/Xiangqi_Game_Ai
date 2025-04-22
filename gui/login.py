@@ -132,10 +132,12 @@ def display_menu(flag):
         openMenu(window)
 
         if AppState.sound_on:
-            sound_button.config(text="🔊 Sound On")
+            if str(sound_button) in window.children:
+                sound_button.config(text="🔊 Sound On")
             sound_manager.unmute()
         else:
-            sound_button.config(text="🔇 Sound Off")
+            if str(sound_button) in window.children:
+                sound_button.config(text="🔇 Sound Off")
             sound_manager.mute()
     else:
         WrongPassWord.grid(row=3,column=0,columnspan=2,sticky="s")
