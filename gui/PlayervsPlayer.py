@@ -4,6 +4,7 @@ from waiting_room import WaitingRoom
 from create_room import CreateRoomForm
 from sound_manager import SoundManager
 from appState import AppState
+from NetworkGame import NetworkGame
 
 class PlayerVsPlayer:
     def __init__(self, menu_window, main_window):
@@ -38,19 +39,19 @@ class PlayerVsPlayer:
 
         # Nút Create
         create_button = tk.Button(
-            button_frame, text="Create", bg="green", fg="white",
+            button_frame, text="Create Room", bg="green", fg="white",
             font=config_font.get_font(14), pady=12, padx=40, bd=0, relief="flat", cursor="hand2",
             command=lambda: [self.sound_manager.play_click_sound(), self.open_create_room()]
         )
         create_button.pack(pady=10)
 
-        # Nút Search
-        search_button = tk.Button(
-            button_frame, text="Search", bg="yellow", fg="black",
+        # Nút Join
+        join_button = tk.Button(
+            button_frame, text="Join Room", bg="yellow", fg="black",
             font=config_font.get_font(14), pady=12, padx=40, bd=0, relief="flat", cursor="hand2",
             command=lambda: [self.sound_manager.play_click_sound(), self.open_waiting_room()]
         )
-        search_button.pack(pady=10)
+        join_button.pack(pady=10)
 
         # Nút quay lại
         back_button = tk.Button(
@@ -59,6 +60,10 @@ class PlayerVsPlayer:
             command=self.back_to_menu
         )
         back_button.pack(pady=10)
+
+    def open_create_room(self):
+        self.frame.pack_forget()
+        CreateRoomForm(self.root, self, self.sound_manager)
 
     def open_waiting_room(self):
         self.frame.pack_forget()
@@ -72,13 +77,6 @@ class PlayerVsPlayer:
     def show_again(self):
         self.frame.pack(expand=True)
         self.root.deiconify()
-
-    def open_create_room(self):
-        self.sound_manager.play_click_sound()
-        self.frame.pack_forget()
-        CreateRoomForm(self.root, self, self.sound_manager)
-
-
 
 if __name__ == "__main__":
     root = tk.Tk()
