@@ -18,7 +18,7 @@ PIECE_RADIUS = CELL_SIZE // 2
 
 class Board:
     board_state = None
-    def __init__(self, canvas):
+    def __init__(self, canvas,mode):
         self.canvas = canvas
         self.pieces = []
         Board.board_state = [[None for _ in range(9)] for _ in range(10)]
@@ -33,6 +33,7 @@ class Board:
         self.draw_board()
         self.load_images()  # Load ảnh
         self.place_pieces()
+        self.mode = mode
         self.canvas.bind("<Button-1>", self.on_click)
 
     def draw_board(self):
@@ -228,9 +229,10 @@ class Board:
                 # Chuyển lượt sau khi di chuyển
                 self.game_logic.swap_turn()
                 Suggestion.clear()
-                if self.game_logic.current_turn == "black":
-                    self.make_ai_move()
-                    self.game_logic.swap_turn()
+                if self.mode == "AI":
+                    if self.game_logic.current_turn == "black":
+                        self.make_ai_move()
+                        self.game_logic.swap_turn()
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
                 # check if the king is checkmated

@@ -21,7 +21,7 @@ def create_PlayvsAI(main_window, main_menu, sound_manager):
     canvas.configure(bg="#333333")
     canvas.pack()
 
-    board = Board(canvas)  # Tạo bàn cờ
+    board = Board(canvas,"AI")  # Tạo bàn cờ
     # board.print_board()   
 
     back_button = tk.Button(board_window, text="Back to Menu", command=lambda: [sound_manager.play_click_sound(),config_font.change_gate(board_window, main_menu)])
