@@ -228,9 +228,12 @@ class Board:
                 # Chuyển lượt sau khi di chuyển
                 self.game_logic.swap_turn()
                 Suggestion.clear()
-                if self.game_logic.current_turn == "black":
-                    self.make_ai_move()
-                    self.game_logic.swap_turn()
+                # if self.game_logic.current_turn == "black":
+                #     self.make_ai_move()
+                #     self.game_logic.swap_turn()
+                
+                
+                
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
                 # check if the king is checkmated

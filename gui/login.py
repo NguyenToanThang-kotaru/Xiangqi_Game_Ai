@@ -21,7 +21,7 @@ config_font.center_window(window, 800, 440)
 
 
 # Khởi tạo quản lý âm thanh
-sound_manager = SoundManager()
+sound_manager = SoundManager()  
 class AppState():
     flag_login = False
 
