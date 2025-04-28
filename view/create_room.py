@@ -3,13 +3,9 @@ import utils.config_font as config_font
 from waiting_room import WaitingRoom
 from sound_manager import SoundManager
 from appState import AppState
-<<<<<<< HEAD:view/create_room.py
-from PlayvsPlayer import NetworkManager
-=======
 import socket
 import threading
 from game.board import Board
->>>>>>> Huy-Socket:gui/create_room.py
 
 import threading
 
@@ -18,7 +14,7 @@ class CreateRoomForm:
         self.root = root
         self.parent = parent
         self.sound_manager = sound_manager
-        self.network_manager = NetworkManager()  # Khởi tạo network manager
+        # self.network_manager = NetworkManager()  # Khởi tạo network manager
         self.frame = tk.Frame(self.root, bg="black")
         self.frame.pack(expand=True)
 
@@ -57,45 +53,6 @@ class CreateRoomForm:
         self.room_name = self.room_name_entry.get()
         time_limit = self.time_entry.get()
         password = self.password_entry.get()
-<<<<<<< HEAD:view/create_room.py
-        self.room_info = {
-            "type": "room_info",
-            "room_name": room_name,
-            "time_per_move": time_limit,
-            "password": password
-        }
-        
-        if self.network_manager.start_server():
-            print("Server started, waiting for client...")
-            
-            # Tạo một thread mới để tiếp tục chờ kết nối
-            threading.Thread(target=self.wait_for_client, daemon=True).start()
-            
-            # Tiếp tục mở giao diện Waiting Room và truyền thông tin phòng
-            self.open_waiting_room()
-
-        else:
-            print("Không thể khởi tạo server")
-
-    def wait_for_client(self):
-        # Đây là nơi bạn kiểm tra xem có khách hàng nào kết nối không
-        self.network_manager.wait_for_client_connection()
-        # Sau khi người chơi kết nối, có thể cập nhật giao diện hoặc chuyển đến trò chơi
-        print("Client has joined the room!")
-        self.network_manager.send_data(self.room_info)
-        print("Room info sent to client!")
-        self.start_game()
-
-    def open_waiting_room(self):
-        self.waiting_room = WaitingRoom(self.root, self, self.parent, self.sound_manager, self.room_info)
-        self.frame.pack_forget()  # Ẩn giao diện Create Room
-        self.waiting_room.frame.pack(expand=True)
-
-    def start_game(self):
-        # Chuyển sang giao diện chơi game
-        print("Start game!")
-        # Bạn có thể gọi hàm hoặc thay đổi giao diện tại đây để bắt đầu trò chơi.
-=======
         print(f"Tạo phòng: {self.room_name}, Thời gian: {time_limit}, Mật khẩu: {password}")
         self.frame.pack_forget()
         self.status_label = tk.Label(self.root, text="Waiting for player to join...", fg="white", bg="black", font=config_font.get_font(14))
@@ -142,7 +99,6 @@ class CreateRoomForm:
             pass
         self.root.destroy()
         self.parent.menu.deiconify()
->>>>>>> Huy-Socket:gui/create_room.py
 
     def cancel(self):
         self.sound_manager.play_click_sound()
