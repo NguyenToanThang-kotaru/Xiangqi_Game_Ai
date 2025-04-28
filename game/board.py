@@ -19,7 +19,7 @@ CELL_SIZE = 40
 
 class Board:
     board_state = None
-    def __init__(self, canvas):
+    def __init__(self, canvas,mode):
         self.canvas = canvas
         self.pieces = []
         Board.board_state = [[None for _ in range(9)] for _ in range(10)]
@@ -34,6 +34,7 @@ class Board:
         self.draw_board()
         self.load_images()  # Load ảnh
         self.place_pieces()
+        self.mode = mode
         self.canvas.bind("<Button-1>", self.on_click)
 
     def draw_board(self):
@@ -176,11 +177,8 @@ class Board:
         y = (event.y / CELL_SIZE * CELL_SIZE) - 15
         col = round(event.x / CELL_SIZE) - 1  
         row = round(event.y / CELL_SIZE) - 1
-<<<<<<< HEAD
-=======
 
         # trong trường hợp đã chọn quân cờ
->>>>>>> Huy-Socket
         if self.selected_piece and 0<=col<9 and 0<=row<10:
             # Tạm thời không kiểm tra luật đi, chỉ thực hiện di chuyển
             if self.move_piece(self.selected_piece, (col, row)) == 1: # nếu di chuyển quân cờ đến ô khác không phải là ô quân cờ đang nằm
@@ -214,9 +212,10 @@ class Board:
                 # Chuyển lượt sau khi di chuyển
                 self.game_logic.swap_turn()
                 Suggestion.clear()
-                # if self.game_logic.current_turn == "black":
-                #     self.make_ai_move()
-                #     self.game_logic.swap_turn()
+                if self.mode == "AI":
+                    if self.game_logic.current_turn == "black":
+                        self.make_ai_move()
+                        self.game_logic.swap_turn()
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
         # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
