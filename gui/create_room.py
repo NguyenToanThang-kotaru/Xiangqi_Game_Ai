@@ -1,172 +1,123 @@
 import tkinter as tk
+import socket
+import threading
 import config_font
-from sound_manager import SoundManager
+import json
 from waiting_room import WaitingRoom
+from online_game import OnlineGame
+from sound_manager import SoundManager
+from appState import AppState
+
 
 class CreateRoomForm:
     def __init__(self, root, parent, sound_manager):
         self.root = root
         self.parent = parent
         self.sound_manager = sound_manager
-        
-        # Frame chính
+
+        self.server_socket = None
+        self.client_socket = None
+
         self.frame = tk.Frame(self.root, bg="black")
         self.frame.pack(expand=True)
 
-        # Tiêu đề
-        title = tk.Label(
-            self.frame, 
-            text="Create Room",
-            font=config_font.get_font(20),
-            fg="pink",
-            bg="black"
-        )
-        title.pack(pady=30)
+        title = tk.Label(self.frame, text="Tạo Phòng",
+                         font=config_font.get_font(18), fg="pink", bg="black")
+        title.pack(pady=20)
 
-        # Frame chứa các trường nhập liệu
-        input_frame = tk.Frame(self.frame, bg="black")
-        input_frame.pack(pady=20)
+        self.room_name_entry = self._create_labeled_entry("Tên Phòng")
+        self.time_entry = self._create_labeled_entry("Thời gian mỗi nước (giây)")
+        self.password_entry = self._create_labeled_entry("Mật khẩu (tùy chọn)", show="*")
 
-        # Tên phòng
-        room_name_label = tk.Label(
-            input_frame,
-            text="Room Name:",
-            font=config_font.get_font(12),
-            fg="white",
-            bg="black"
-        )
-        room_name_label.pack()
-        self.room_name_entry = tk.Entry(
-            input_frame,
-            font=config_font.get_font(12),
-            bg="#333333",
-            fg="white",
-            insertbackground="white"
-        )
-        self.room_name_entry.pack(pady=5)
-
-        # Thời gian cho mỗi nước đi
-        time_label = tk.Label(
-            input_frame,
-            text="Time per move (seconds):",
-            font=config_font.get_font(12),
-            fg="white",
-            bg="black"
-        )
-        time_label.pack()
-        self.time_entry = tk.Entry(
-            input_frame,
-            font=config_font.get_font(12),
-            bg="#333333",
-            fg="white",
-            insertbackground="white"
-        )
-        self.time_entry.pack(pady=5)
-
-        # Mật khẩu
-        password_label = tk.Label(
-            input_frame,
-            text="Password:",
-            font=config_font.get_font(12),
-            fg="white",
-            bg="black"
-        )
-        password_label.pack()
-        self.password_entry = tk.Entry(
-            input_frame,
-            font=config_font.get_font(12),
-            bg="#333333",
-            fg="white",
-            insertbackground="white",
-            show="*"
-        )
-        self.password_entry.pack(pady=5)
-
-        # Frame chứa nút
         button_frame = tk.Frame(self.frame, bg="black")
         button_frame.pack(pady=20)
 
-        # Nút tạo phòng
-        create_button = tk.Button(
-            button_frame,
-            text="Create",
-            bg="green",
-            fg="white",
-            font=config_font.get_font(14),
-            pady=8,
-            padx=30,
-            bd=0,
-            relief="flat",
-            cursor="hand2",
-            command=self.create_room
-        )
-        create_button.pack(pady=10)
+        create_btn = tk.Button(button_frame, text="Tạo", bg="green", fg="white",
+                               font=config_font.get_font(12), padx=30, pady=10, bd=0, relief="flat", cursor="hand2",
+                               command=self.create_room)
+        create_btn.pack(side="left", padx=10)
 
-        # Nút quay lại
-        back_button = tk.Button(
-            button_frame,
-            text="Back",
-            bg="#FF3399",
-            fg="white",
-            font=config_font.get_font(12),
-            pady=8,
-            padx=30,
-            bd=0,
-            relief="flat",
-            cursor="hand2",
-            command=self.back
-        )
-        back_button.pack(pady=10)
+        cancel_btn = tk.Button(button_frame, text="Hủy", bg="#FF3399", fg="white",
+                               font=config_font.get_font(12), padx=30, pady=10, bd=0, relief="flat", cursor="hand2",
+                               command=self.cancel)
+        cancel_btn.pack(side="left", padx=10)
+
+    def _create_labeled_entry(self, label_text, show=None):
+        label = tk.Label(self.frame, text=label_text, font=config_font.get_font(12), fg="white", bg="black")
+        label.pack(pady=(10, 0))
+        entry = tk.Entry(self.frame, font=config_font.get_font(12), bg="#333", fg="white",
+                         show=show, insertbackground="white")
+        entry.pack(pady=5, ipadx=10, ipady=5)
+        return entry
 
     def create_room(self):
         self.sound_manager.play_click_sound()
         room_name = self.room_name_entry.get()
-        time_per_move = self.time_entry.get()
+        time_limit = self.time_entry.get()
         password = self.password_entry.get()
+        print(f"Tạo phòng: {room_name}, Thời gian: {time_limit}, Mật khẩu: {password}")
+        self.frame.destroy()
+        self.start_server()
+        self.show_waiting_room()
 
-        if not room_name:
-            self.show_error("Please enter room name")
-            return
-
-        try:
-            time_per_move = int(time_per_move)
-            if time_per_move <= 0:
-                raise ValueError
-        except ValueError:
-            self.show_error("Time per move must be a positive number")
-            return
-
-        # Lưu thông tin phòng
-        self.room_info = {
-            'name': room_name,
-            'time_per_move': time_per_move,
-            'password': password
-        }
-
-        # Chuyển sang giao diện chờ
-        self.frame.pack_forget()
-        WaitingRoom(
-            self.root,
-            self.parent,
-            self.parent.main_window,
-            self.sound_manager,
-            is_host=True,
-            room_info=self.room_info
+    def show_waiting_room(self):
+        self.waiting_room = WaitingRoom(
+            parent_window=self.root,
+            pvp_window=self,
+            main_window=self.parent,
+            sound_manager=self.sound_manager
         )
 
-    def back(self):
+    def start_server(self):
+        def server_thread():
+            self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.server_socket.bind(('0.0.0.0', 12345))
+            self.server_socket.listen(1)
+            print("[SERVER] Waiting for client to connect...")
+
+            self.client_socket, addr = self.server_socket.accept()
+            print(f"[SERVER] Client connected from {addr}")
+            
+            try:
+                # Nhận dữ liệu đăng nhập từ client
+                data = self.client_socket.recv(4096).decode()
+                if not data:
+                    return
+                    
+                login_data = json.loads(data)
+                if login_data["type"] == "JOIN":
+                    # Gửi thông báo kết nối thành công dưới dạng JSON
+                    response = {
+                        "type": "CONNECT",
+                        "status": "SUCCESS",
+                        "message": "Kết nối thành công"
+                    }
+                    self.client_socket.send(json.dumps(response).encode())
+                    
+                    # Tạo cửa sổ game mới
+                    game_window = tk.Toplevel(self.root)
+                    game_window.title("Cờ Tướng Online")
+                    game_window.geometry("400x500")
+                    config_font.center_window(game_window, 400, 500)
+                    
+                    # Khởi tạo game online (is_host=True vì đây là người tạo phòng)
+                    OnlineGame(game_window, self.client_socket, True, self.parent, self.sound_manager)
+                    
+                    # Đóng phòng chờ
+                    if hasattr(self, 'waiting_room'):
+                        self.waiting_room.frame.destroy()
+            except json.JSONDecodeError as e:
+                print(f"Lỗi giải mã JSON: {e}")
+            except Exception as e:
+                print(f"Lỗi xử lý kết nối: {e}")
+
+        threading.Thread(target=server_thread, daemon=True).start()
+
+    def cancel(self):
         self.sound_manager.play_click_sound()
-        self.frame.pack_forget()
+        self.frame.destroy()
         self.parent.show_again()
 
-    def show_error(self, message):
-        error_label = tk.Label(
-            self.frame,
-            text=message,
-            fg="red",
-            bg="black",
-            font=config_font.get_font(12)
-        )
-        error_label.pack(pady=10)
+    def show_again(self):
+        self.__init__(self.root, self.parent, self.sound_manager)
 
-   

@@ -2,9 +2,9 @@ import tkinter as tk
 import config_font
 from waiting_room import WaitingRoom
 from create_room import CreateRoomForm
+from join_room import JoinRoom
 from sound_manager import SoundManager
 from appState import AppState
-from NetworkGame import NetworkGame
 
 class PlayerVsPlayer:
     def __init__(self, menu_window, main_window):
@@ -39,35 +39,35 @@ class PlayerVsPlayer:
 
         # Nút Create
         create_button = tk.Button(
-            button_frame, text="Create Room", bg="green", fg="white",
+            button_frame, text="Tạo Phòng", bg="green", fg="white",
             font=config_font.get_font(14), pady=12, padx=40, bd=0, relief="flat", cursor="hand2",
             command=lambda: [self.sound_manager.play_click_sound(), self.open_create_room()]
         )
         create_button.pack(pady=10)
 
-        # Nút Join
-        join_button = tk.Button(
-            button_frame, text="Join Room", bg="yellow", fg="black",
+        # Nút Search
+        search_button = tk.Button(
+            button_frame, text="Tham Gia Phòng", bg="yellow", fg="black",
             font=config_font.get_font(14), pady=12, padx=40, bd=0, relief="flat", cursor="hand2",
-            command=lambda: [self.sound_manager.play_click_sound(), self.open_waiting_room()]
+            command=lambda: [self.sound_manager.play_click_sound(), self.open_join_room()]
         )
-        join_button.pack(pady=10)
+        search_button.pack(pady=10)
 
         # Nút quay lại
         back_button = tk.Button(
-            button_frame, text="Back to Menu", bg="#FF3399", fg="white",
+            button_frame, text="Quay Lại Menu", bg="#FF3399", fg="white",
             font=config_font.get_font(12), pady=8, padx=30, bd=0, relief="flat", cursor="hand2",
             command=self.back_to_menu
         )
         back_button.pack(pady=10)
 
-    def open_create_room(self):
-        self.frame.pack_forget()
-        CreateRoomForm(self.root, self, self.sound_manager)
-
     def open_waiting_room(self):
         self.frame.pack_forget()
         WaitingRoom(self.root, self, self.main_window, self.sound_manager)
+
+    def open_join_room(self):
+        self.frame.pack_forget()
+        JoinRoom(self.root, self.main_window, self.sound_manager)
 
     def back_to_menu(self):
         self.sound_manager.play_click_sound()
@@ -77,6 +77,11 @@ class PlayerVsPlayer:
     def show_again(self):
         self.frame.pack(expand=True)
         self.root.deiconify()
+
+    def open_create_room(self):
+        self.sound_manager.play_click_sound()
+        self.frame.pack_forget()
+        CreateRoomForm(self.root, self, self.sound_manager)
 
 if __name__ == "__main__":
     root = tk.Tk()
