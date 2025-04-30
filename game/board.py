@@ -185,17 +185,6 @@ class Board:
         y = (event.y / CELL_SIZE * CELL_SIZE) - 15
         col = round(event.x / CELL_SIZE) - 1  
         row = round(event.y / CELL_SIZE) - 1
-
-        # for piece in self.pieces:
-        #     if "tuong_" in piece.name:
-        #         if is_checkmated(piece, self.board_state, self.pieces):
-        #             if (piece.color == "red"):
-        #                 print("Red king is checkmated")
-        #             else:
-        #                 print("Black king is checkmated")
-        #             # self.canvas.unbind("<Button-1>")
-        #             return
-        # trong trường hợp đã chọn quân cờ
         if self.selected_piece and 0<=col<9 and 0<=row<10:
             # Tạm thời không kiểm tra luật đi, chỉ thực hiện di chuyển
             if self.move_piece(self.selected_piece, (col, row)) == 1: # nếu di chuyển quân cờ đến ô khác không phải là ô quân cờ đang nằm

@@ -62,8 +62,6 @@ class GameLogic:
     def is_other_have_valid_move(self, attacking_piece, king_piece, board_state):
         attacking_moves = []
         block_checkmate = []
-
-        king_x, king_y = king_piece.x, king_piece.y
         attacking_moves.append((attacking_piece.x, attacking_piece.y))
         
         for row in range(10):
