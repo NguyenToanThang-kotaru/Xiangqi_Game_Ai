@@ -2,7 +2,7 @@ import sys
 import os
 
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))) 
 
 from database.function_db.db_login import check_login
 from main_menu import openMenu
