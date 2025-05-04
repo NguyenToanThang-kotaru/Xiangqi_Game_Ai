@@ -64,22 +64,16 @@ class WaitingRoom:
 
     def connect_to_server(self, ip, password):
         PORT = 65432
-        try:
-            self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.client_socket.connect((ip, PORT))
-            self.client_socket.sendall(password.encode())
-            response = self.client_socket.recv(1024)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((ip, PORT))
+            s.sendall(password.encode() if password else b'_EMPTY_')
+            response = s.recv(1024)
             if response == b'OK':
-                # Nhận room_name từ server
-                room_name = self.client_socket.recv(1024).decode()
+                room_name = s.recv(1024).decode()
                 self.status_label.config(text="Connected! Starting game...")
                 self.show_board_v2(room_name)
             else:
                 self.status_label.config(text="Wrong password or connection refused.")
-            self.client_socket.close()
-        except Exception as e:
-            self.status_label.config(text=f"Connection error: {e}")
-
     def show_board_v2(self, room_name):
         self.status_label.destroy()
         self.frame.destroy()

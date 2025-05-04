@@ -60,25 +60,24 @@ class CreateRoomForm:
     def start_server(self, password):
         HOST = ''
         PORT = 65432
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind((HOST, PORT))
-        self.server_socket.listen(1)
-        print("Server is listening...")
-        conn, addr = self.server_socket.accept()
-        print(f"Client connected from {addr}")
-        # Nhận mật khẩu từ client
-        client_password = conn.recv(1024).decode()
-        if client_password == password:
-            conn.sendall(b'OK')
-            # Gửi room_name cho client
-            conn.sendall(self.room_name.encode())
-            self.status_label.config(text="Player joined! Starting game...")
-            self.show_board(self.room_name)
-        else:
-            conn.sendall(b'WRONG_PASSWORD')
-            self.status_label.config(text="Wrong password! Connection refused.")
-        conn.close()
-        self.server_socket.close()
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((HOST, PORT))
+            s.listen(1)
+            print("Server is listening...")
+            conn, addr = s.accept()
+            with conn:  # Also good practice
+                print(f"Client connected from {addr}")
+                client_password = conn.recv(1024).decode()
+                if client_password == '_EMPTY_':
+                    client_password = ''
+                if client_password == password or password == None:
+                    conn.sendall(b'OK')
+                    conn.sendall(self.room_name.encode())
+                    self.status_label.config(text="Player joined! Starting game...")
+                    self.show_board(self.room_name)
+                else:
+                    conn.sendall(b'WRONG_PASSWORD')
+                    self.status_label.config(text="Wrong password! Connection refused.")
 
     def show_board(self, room_name):
         self.status_label.destroy()
