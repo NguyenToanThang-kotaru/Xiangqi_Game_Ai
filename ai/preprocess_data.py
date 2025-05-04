@@ -58,48 +58,28 @@ def move_to_vector(move):
 def preprocess_data():
     conn = connect_db()
     cursor = conn.cursor()
-
     # Lấy dữ liệu từ database
     cursor.execute("SELECT fen, move, score, winrate FROM ai_training_data")
     rows = cursor.fetchall()
-
     processed_data = []
-
     for row in rows:
         fen, move, score, winrate = row
         fen_array = fen_to_array(fen)
         move_vector = move_to_vector(move)
     
         turn_value = fen_array[-1]  # Lấy giá trị turn từ cuối mảng FEN
-        print(f"✅ FEN Array: {fen_array}")
-        print(f"🎯 Turn Value: {turn_value}")
-        # print(f"🔍 Dữ liệu trước khi thêm vào DataFrame: {fen_array[:-1] + [turn_value] + move_vector + [score, winrate]}")
-        print(f"📊 Số lượng phần tử: {len(fen_array[:-1]) + 1 + len(move_vector) + 2}")
         processed_data.append(fen_array[:-1] + [turn_value] + move_vector + [score, winrate])
 
     
-    print(f"🔍 Debug FEN: {fen}")
-    print(f"🔍 FEN Array Length: {len(fen_array)}")
-    print(f"🔍 FEN Array: {fen_array}")
-    # Xuất dữ liệu ra CSV và xử lý NaN
-    # df = pd.DataFrame(processed_data)
-    # df.to_csv("processed_data_cleaned.csv", index=False)
     df = pd.DataFrame(processed_data)
 
     df.fillna(0, inplace=True)  # Xử lý NaN nếu có
     df.to_csv("dataset/processed_data_cleaned.csv", index=False)
-    print(f"📊 FEN Array Length: {len(fen_array)}")   # 64
-    print(f"📊 Move Vector Length: {len(move_vector)}")  # 4
-    print(f"📊 Score + Winrate: 2")  # 2 giá trị
-    print(f"📊 Turn Value: {1}")  # 1 giá trị
-    print(f"📊 Tổng số đặc trưng tính toán: {len(fen_array[:-1]) +1 + len(move_vector) + 2}")  
-
 
 
     df.fillna(0, inplace=True)  # Thay thế NaN bằng 0
     df.to_csv("dataset/processed_data_cleaned.csv", index=False)
 
-    print("✅ Dữ liệu đã được tiền xử lý, làm sạch và lưu vào processed_data_cleaned.csv!")
 
     cursor.close()
     conn.close()
