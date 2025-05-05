@@ -4,7 +4,7 @@ from sound_manager import SoundManager
 from appState import AppState
 import socket
 import threading
-from game.board import Board_v2
+from game.board import Board as Board_v2
 
 class WaitingRoom:
     def __init__(self, parent_window, pvp_window, main_window, sound_manager):

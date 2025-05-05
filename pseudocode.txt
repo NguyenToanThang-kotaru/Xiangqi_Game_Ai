@@ -1,0 +1,9 @@
+red go first
+after red move a piece, red could not move until receive move from black
+after moving a piece, it's data(FEN) will 
+create_room
+waiting_room
+board.py
+
+error: after the server make a move, the board will appear on the client --> error
+server could only make a move if the client finished loading the board

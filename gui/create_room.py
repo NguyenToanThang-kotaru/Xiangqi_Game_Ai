@@ -52,7 +52,7 @@ class CreateRoomForm:
         self.sound_manager.play_click_sound()
         self.room_name = self.room_name_entry.get()
         time_limit = self.time_entry.get()
-        password = self.password_entry.get()
+        password = (self.password_entry.get() if self.password_entry.get() else '_EMPTY_')
         print(
             f"Tạo phòng: {self.room_name}, Thời gian: {time_limit}, Mật khẩu: {password}")
         self.frame.pack_forget()
@@ -76,12 +76,11 @@ class CreateRoomForm:
 
         # Nhận password từ client
         client_password = conn.recv(1024).decode()
-        if client_password == '_EMPTY_':
-            client_password = ''
 
         # Kiểm tra password
-        if client_password == password or password is None:
+        if client_password == password:
             conn.sendall(b'OK')
+            self.status_label.config(text="Password corrected")
             conn.sendall(self.room_name.encode())
             self.status_label.config(text="Player joined! Starting game...")
 
