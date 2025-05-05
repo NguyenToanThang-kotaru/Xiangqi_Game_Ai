@@ -23,7 +23,8 @@ class CreateRoomForm:
 
         self.room_name_entry = self._create_labeled_entry("Room Name")
         self.time_entry = self._create_labeled_entry("Time per move (seconds)")
-        self.password_entry = self._create_labeled_entry("Password (optional)", show="*")
+        self.password_entry = self._create_labeled_entry(
+            "Password (optional)", show="*")
 
         button_frame = tk.Frame(self.frame, bg="black")
         button_frame.pack(pady=20)
@@ -39,7 +40,8 @@ class CreateRoomForm:
         cancel_btn.pack(side="left", padx=10)
 
     def _create_labeled_entry(self, label_text, show=None):
-        label = tk.Label(self.frame, text=label_text, font=config_font.get_font(12), fg="white", bg="black")
+        label = tk.Label(self.frame, text=label_text,
+                         font=config_font.get_font(12), fg="white", bg="black")
         label.pack(pady=(10, 0))
         entry = tk.Entry(self.frame, font=config_font.get_font(12), bg="#333", fg="white",
                          show=show, insertbackground="white")
@@ -51,43 +53,67 @@ class CreateRoomForm:
         self.room_name = self.room_name_entry.get()
         time_limit = self.time_entry.get()
         password = self.password_entry.get()
-        print(f"Tạo phòng: {self.room_name}, Thời gian: {time_limit}, Mật khẩu: {password}")
+        print(
+            f"Tạo phòng: {self.room_name}, Thời gian: {time_limit}, Mật khẩu: {password}")
         self.frame.pack_forget()
-        self.status_label = tk.Label(self.root, text="Waiting for player to join...", fg="white", bg="black", font=config_font.get_font(14))
+        self.status_label = tk.Label(self.root, text="Waiting for player to join...",
+                                     fg="white", bg="black", font=config_font.get_font(14))
         self.status_label.pack(pady=20)
-        threading.Thread(target=self.start_server, args=(password,), daemon=True).start()
+        threading.Thread(target=self.start_server,
+                         args=(password,), daemon=True).start()
+
 
     def start_server(self, password):
         HOST = ''
-        PORT = 65432
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((HOST, PORT))
-            s.listen(1)
-            print("Server is listening...")
-            conn, addr = s.accept()
-            with conn:  # Also good practice
-                print(f"Client connected from {addr}")
-                client_password = conn.recv(1024).decode()
-                if client_password == '_EMPTY_':
-                    client_password = ''
-                if client_password == password or password == None:
-                    conn.sendall(b'OK')
-                    conn.sendall(self.room_name.encode())
-                    self.status_label.config(text="Player joined! Starting game...")
-                    self.show_board(self.room_name)
-                else:
-                    conn.sendall(b'WRONG_PASSWORD')
-                    self.status_label.config(text="Wrong password! Connection refused.")
+        PORT = 2000
+        # Tạo socket và lưu vào self để có thể đóng khi back
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((HOST, PORT))
+        self.server_socket.listen(1)
+        print("Server is listening...")
+        conn, addr = self.server_socket.accept()
+        print(f"Client connected from {addr}")
 
-    def show_board(self, room_name):
+        # Nhận password từ client
+        client_password = conn.recv(1024).decode()
+        if client_password == '_EMPTY_':
+            client_password = ''
+
+        # Kiểm tra password
+        if client_password == password or password is None:
+            conn.sendall(b'OK')
+            conn.sendall(self.room_name.encode())
+            self.status_label.config(text="Player joined! Starting game...")
+
+            # Lưu conn lên instance để dùng gửi nước đi sau này
+            self.server_conn = conn
+
+            # Truyền conn vào show_board
+            self.show_board(self.room_name, conn)
+        else:
+            conn.sendall(b'WRONG_PASSWORD')
+            self.status_label.config(text="Wrong password! Connection refused.")
+            conn.close()
+
+    def show_board(self, room_name, conn):
+        # Xóa UI cũ
         self.status_label.destroy()
         self.frame.destroy()
-        room_label = tk.Label(self.root, text=f"Room: {room_name}", fg="yellow", bg="black", font=config_font.get_font(16))
+
+        # Hiển thị tên phòng
+        room_label = tk.Label(self.root, text=f"Room: {room_name}", fg="yellow",
+                            bg="black", font=config_font.get_font(16))
         room_label.pack(pady=10)
+
+        # Tạo canvas và truyền conn vào Board
         self.board_canvas = tk.Canvas(self.root, width=400, height=425, bg="#333333")
         self.board_canvas.pack(expand=True)
-        Board(self.board_canvas)
-        back_btn = tk.Button(self.root, text="Back", bg="#FF3399", fg="white", font=config_font.get_font(12), padx=20, pady=8, command=self.back_to_menu_from_board)
+        Board(self.board_canvas, conn)   # ← conn ở đây
+
+        # Nút back
+        back_btn = tk.Button(self.root, text="Back", bg="#FF3399", fg="white",
+                            font=config_font.get_font(12), padx=20, pady=8,
+                            command=self.back_to_menu_from_board)
         back_btn.pack(pady=10)
 
     def back_to_menu_from_board(self):
@@ -102,5 +128,3 @@ class CreateRoomForm:
         self.sound_manager.play_click_sound()
         self.frame.destroy()
         self.parent.show_again()
-
-   

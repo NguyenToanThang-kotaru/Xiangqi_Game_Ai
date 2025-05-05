@@ -2,6 +2,7 @@ import random
 import tkinter as tk
 import sys
 import os
+import threading
 # from game.checkmate import is_checkmated, is_checked
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -19,7 +20,7 @@ CELL_SIZE = 40
 
 class Board:
     board_state = None
-    def __init__(self, canvas):
+    def __init__(self, canvas, conn=None):
         self.canvas = canvas
         self.pieces = []
         Board.board_state = [[None for _ in range(9)] for _ in range(10)]
@@ -35,6 +36,11 @@ class Board:
         self.load_images()  # Load ảnh
         self.place_pieces()
         self.canvas.bind("<Button-1>", self.on_click)
+        self.conn =conn
+        
+        if self.conn:
+            import threading
+            threading.Thread(target=self.listen_for_opponent, daemon=True).start();
 
     def draw_board(self):
         for col in range(9):
@@ -182,6 +188,8 @@ class Board:
             # Tạm thời không kiểm tra luật đi, chỉ thực hiện di chuyển
             if self.move_piece(self.selected_piece, (col, row)) == 1: # nếu di chuyển quân cờ đến ô khác không phải là ô quân cờ đang nằm
             # self.move_piece(self.selected_piece, (col, row))
+                if self.conn:
+                    self.send_move((x, y), (col, row))
                 self.print_board()
                 # fen = self.to_fen()
                 # print(fen)
@@ -391,13 +399,43 @@ class Board:
     def get_board_array(self):
         """Chuyển bàn cờ thành danh sách 2D"""
         return [[Board.board_state[y][x] for x in range(9)] for y in range(10)]
+    def send_move(self, from_pos, to_pos):
+        if not self.conn:
+            print("❌ Không có kết nối để gửi.")
+            return
+        msg = f"{from_pos[0]}{from_pos[1]}{to_pos[0]}{to_pos[1]}"
+        try:
+            print(f"📤 Gửi nước đi: {msg}")
+            self.conn.sendall(msg.encode())
+        except Exception as e:
+            print("❌ Gửi nước đi thất bại:", e)
+            
+    def listen_for_opponent(self):
+        while True:
+            try:
+                data = self.conn.recv(1024)
+                if not data:
+                    break
+                msg = data.decode().strip()
+                # Chuyển "x1y1x2y2" thành 4 số
+                x1, y1, x2, y2 = map(int, list(msg))
+                # Đưa việc apply_move lên luồng chính
+                self.canvas.after(0, lambda: self.apply_move_from_network(x1, y1, x2, y2))
+            except Exception as e:
+                print("Lỗi nhận nước đi:", e)
+                break
+            
+    def apply_move_from_network(self, x1, y1, x2, y2):
+        piece = Board.board_state[y1][x1]
+        if piece and self.move_piece(piece, (x2, y2)) == 1:
+            self.game_logic.swap_turn()
     
 
 
 # Tạo board quân đen ở dưới
 class Board_v2:
     board_state = None
-    def __init__(self, canvas):
+    def __init__(self, canvas,conn):
             self.canvas = canvas
             self.pieces = []
             Board.board_state = [[None for _ in range(9)] for _ in range(10)]
@@ -413,7 +451,10 @@ class Board_v2:
             self.load_images()  # Load ảnh
             self.place_pieces()
             self.canvas.bind("<Button-1>", self.on_click)
-
+            self.conn =conn
+            if self.conn:
+                import threading
+                threading.Thread(target=self.listen_for_opponent, daemon=True).start()
     def draw_board(self):
             for col in range(9):
                 x = (col + 1) * CELL_SIZE
@@ -561,6 +602,8 @@ class Board_v2:
                 if self.move_piece(self.selected_piece, (col, row)) == 1: # nếu di chuyển quân cờ đến ô khác không phải là ô quân cờ đang nằm
                 # self.move_piece(self.selected_piece, (col, row))
                     self.print_board()
+                    if self.conn:
+                        self.send_move((x, y), (col, row))
                     # fen = self.to_fen()
                     # print(fen)
 
@@ -769,3 +812,33 @@ class Board_v2:
     def get_board_array(self):
             """Chuyển bàn cờ thành danh sách 2D"""
             return [[Board.board_state[y][x] for x in range(9)] for y in range(10)]     
+        
+    def send_move(self, from_pos, to_pos):
+        if not self.conn:
+            return
+        # Ví dụ định dạng "x1y1x2y2"
+        msg = f"{from_pos[0]}{from_pos[1]}{to_pos[0]}{to_pos[1]}"
+        try:
+            self.conn.sendall(msg.encode())
+        except Exception as e:
+            print("Gửi nước đi thất bại:", e)
+            
+    def listen_for_opponent(self):
+        while True:
+            try:
+                data = self.conn.recv(1024)
+                if not data:
+                    break
+                msg = data.decode().strip()
+                # Chuyển "x1y1x2y2" thành 4 số
+                x1, y1, x2, y2 = map(int, list(msg))
+                # Đưa việc apply_move lên luồng chính
+                self.canvas.after(0, lambda: self.apply_move_from_network(x1, y1, x2, y2))
+            except Exception as e:
+                print("Lỗi nhận nước đi:", e)
+                break
+            
+    def apply_move_from_network(self, x1, y1, x2, y2):
+        piece = Board.board_state[y1][x1]
+        if piece and self.move_piece(piece, (x2, y2)) == 1:
+            self.game_logic.swap_turn()

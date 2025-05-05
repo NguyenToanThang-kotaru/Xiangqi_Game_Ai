@@ -63,9 +63,10 @@ class WaitingRoom:
         threading.Thread(target=self.connect_to_server, args=(ip, password), daemon=True).start()
 
     def connect_to_server(self, ip, password):
-        PORT = 65432
+        PORT = 2000
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((ip, PORT))
+            self.client_socket = s
             s.sendall(password.encode() if password else b'_EMPTY_')
             response = s.recv(1024)
             if response == b'OK':
@@ -76,12 +77,13 @@ class WaitingRoom:
                 self.status_label.config(text="Wrong password or connection refused.")
     def show_board_v2(self, room_name):
         self.status_label.destroy()
-        self.frame.destroy()
+        self.frame.destroy()    
         room_label = tk.Label(self.parent, text=f"Room: {room_name}", fg="yellow", bg="black", font=config_font.get_font(16))
         room_label.pack(pady=10)
+        
         self.board_canvas = tk.Canvas(self.parent, width=400, height=425, bg="#333333")
         self.board_canvas.pack(expand=True)
-        Board_v2(self.board_canvas)
+        Board_v2(self.board_canvas,self.client_socket)
         back_btn = tk.Button(self.parent, text="Back", bg="#FF3399", fg="white", font=config_font.get_font(12), padx=20, pady=8, command=self.back_to_menu_from_board)
         back_btn.pack(pady=10)
 
