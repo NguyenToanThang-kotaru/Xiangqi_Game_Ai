@@ -76,12 +76,13 @@ class CreateRoomForm:
 
         # Nhận password từ client
         client_password = conn.recv(1024).decode()
+        print("Received password from client")
 
         # Kiểm tra password
         if client_password == password:
-            conn.sendall(b'OK')
-            self.status_label.config(text="Password corrected")
-            conn.sendall(self.room_name.encode())
+            print("Password corrected")
+            conn.sendall(f"OK|{self.room_name}".encode())
+            print("sent signal 'OK' to the client")
             self.status_label.config(text="Player joined! Starting game...")
 
             # Lưu conn lên instance để dùng gửi nước đi sau này
@@ -92,7 +93,7 @@ class CreateRoomForm:
         else:
             conn.sendall(b'WRONG_PASSWORD')
             self.status_label.config(text="Wrong password! Connection refused.")
-            conn.close()
+            # conn.close()
 
     def show_board(self, room_name, conn):
         # Xóa UI cũ

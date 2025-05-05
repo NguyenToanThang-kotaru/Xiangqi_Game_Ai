@@ -68,12 +68,15 @@ class WaitingRoom:
             s.connect((ip, PORT))
             self.client_socket = s
             s.sendall(password.encode() if password else b'_EMPTY_')
-            response = s.recv(1024)
-            if response == b'OK':
-                room_name = s.recv(1024).decode()
+            response = s.recv(1024).decode()
+            print('received response from the server')
+            if response.startswith("OK|"):
+                print('password corrected')
+                room_name = response.split("|", 1)[1]
                 self.status_label.config(text="Connected! Starting game...")
                 self.show_board_v2(room_name)
             else:
+                print('password incorrected')
                 self.status_label.config(text="Wrong password or connection refused.")
     def show_board_v2(self, room_name):
         self.status_label.destroy()
