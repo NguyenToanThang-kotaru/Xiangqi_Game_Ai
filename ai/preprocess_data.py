@@ -42,62 +42,60 @@ def fen_to_array(fen):
     # Thêm lượt đi vào mảng số (0 nếu là 'w', 1 nếu là 'b')
     turn_value = 0 if turn == 'w' else 1
 
-    return board_array + [turn_value]
+    return board_array ,turn_value
 
 # Chuyển Move thành tọa độ số
 def move_to_vector(move):
     columns = 'abcdefghi'  # Cột trong ICCS
-    start_col = columns.index(move[0]) + 1  # Chuyển từ 0-based -> 1-based
-    start_row = 10 - int(move[1])  # Chuyển hàng về 1-10 (cờ tướng từ trên xuống)
-    end_col = columns.index(move[2]) + 1
-    end_row = 10 - int(move[3])
+    start_col = columns.index(move[0])   # Chuyển từ 0-based -> 1-based
+    start_row = 9 - int(move[1])  # Chuyển hàng về 1-10 (cờ tướng từ trên xuống)
+    end_col = columns.index(move[2]) 
+    end_row = 9 - int(move[3])
     
     return [start_col, start_row, end_col, end_row]
 
+# Tiền xử lý dữ liệu
 # Tiền xử lý dữ liệu
 def preprocess_data():
     conn = connect_db()
     cursor = conn.cursor()
 
-    # Lấy dữ liệu từ database
-    cursor.execute("SELECT fen, move, score, winrate FROM ai_training_data")
+    # Lấy dữ liệu từ database (chỉ lấy 3 cột: fen, move, winrate)
+    cursor.execute("SELECT fen, move, winrate FROM ai_training_data")
     rows = cursor.fetchall()
 
     processed_data = []
 
     for row in rows:
-        fen, move, score, winrate = row
-        fen_array = fen_to_array(fen)
+        fen, move, winrate = row
+        fen_array, turn_value = fen_to_array(fen)
         move_vector = move_to_vector(move)
-    
-        turn_value = fen_array[-1]  # Lấy giá trị turn từ cuối mảng FEN
-        print(f"✅ FEN Array: {fen_array}")
-        print(f"🎯 Turn Value: {turn_value}")
-        # print(f"🔍 Dữ liệu trước khi thêm vào DataFrame: {fen_array[:-1] + [turn_value] + move_vector + [score, winrate]}")
-        print(f"📊 Số lượng phần tử: {len(fen_array[:-1]) + 1 + len(move_vector) + 2}")
-        processed_data.append(fen_array[:-1] + [turn_value] + move_vector + [score, winrate])
+        print(f"turn_value: {turn_value}")
+        print(f"🔍 Debug FEN: {fen}")
+        print(f"🔍 Debug Move: {move}")
+        # Chỉ cần fen_array, turn_value và winrate làm đặc trưng
+        features = fen_array + [turn_value] + [winrate]
+        
+        # Dự đoán nước đi, nước đi là nhãn
+        target = move_vector
+        
+        # Thêm vào danh sách dữ liệu đã xử lý
+        processed_data.append(features + target)  # Đặc trưng + Nước đi (move_vector)
 
-    
     print(f"🔍 Debug FEN: {fen}")
     print(f"🔍 FEN Array Length: {len(fen_array)}")
     print(f"🔍 FEN Array: {fen_array}")
+    
     # Xuất dữ liệu ra CSV và xử lý NaN
-    # df = pd.DataFrame(processed_data)
-    # df.to_csv("processed_data_cleaned.csv", index=False)
     df = pd.DataFrame(processed_data)
 
     df.fillna(0, inplace=True)  # Xử lý NaN nếu có
     df.to_csv("dataset/processed_data_cleaned.csv", index=False)
+    
     print(f"📊 FEN Array Length: {len(fen_array)}")   # 64
     print(f"📊 Move Vector Length: {len(move_vector)}")  # 4
-    print(f"📊 Score + Winrate: 2")  # 2 giá trị
-    print(f"📊 Turn Value: {1}")  # 1 giá trị
-    print(f"📊 Tổng số đặc trưng tính toán: {len(fen_array[:-1]) +1 + len(move_vector) + 2}")  
-
-
-
-    df.fillna(0, inplace=True)  # Thay thế NaN bằng 0
-    df.to_csv("dataset/processed_data_cleaned.csv", index=False)
+    print(f"📊 Winrate: 1")  # 1 giá trị
+    print(f"📊 Tổng số đặc trưng tính toán: {len(fen_array) + 1 + 1 + len(move_vector)}")  # Đặc trưng + Winrate + Move
 
     print("✅ Dữ liệu đã được tiền xử lý, làm sạch và lưu vào processed_data_cleaned.csv!")
 

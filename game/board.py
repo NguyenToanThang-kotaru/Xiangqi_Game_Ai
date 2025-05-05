@@ -219,9 +219,9 @@ class Board:
                 # Chuyển lượt sau khi di chuyển
                 self.game_logic.swap_turn()
                 Suggestion.clear()
-                # if self.game_logic.current_turn == "black":
-                #     self.make_ai_move()
-                #     self.game_logic.swap_turn()
+                if self.game_logic.current_turn == "black":
+                    self.make_ai_move()
+                    self.game_logic.swap_turn()
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
         # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
@@ -280,7 +280,7 @@ class Board:
             fen_rows.append(fen_row)
         board_fen = "/".join(fen_rows)
         turn_fen = "w" if self.game_logic.current_turn == "red" else "b"
-    
+        print(f"{board_fen} {turn_fen}")
         return f"{board_fen} {turn_fen}"
     
     def get_piece_fen_symbol(self, piece):
@@ -638,9 +638,9 @@ class Board_v2:
                     # Chuyển lượt sau khi di chuyển
                     self.game_logic.swap_turn()
                     Suggestion.clear()
-                    # if self.game_logic.current_turn == "black":
-                    #     self.make_ai_move()
-                    #     self.game_logic.swap_turn()
+                    if self.game_logic.current_turn == "black":
+                        self.make_ai_move()
+                        self.game_logic.swap_turn()
                 # elif self.move_piece(self.selected_piece, (col, row))==1:
 
             # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
