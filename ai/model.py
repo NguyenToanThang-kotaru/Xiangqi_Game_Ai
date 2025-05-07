@@ -76,7 +76,12 @@ class AIModel:
         to_x   = round(predicted_move_vector[2])
         to_y   = round(predicted_move_vector[3])
         print(f"✅ Dự đoán vector nước đi: {from_x, from_y, to_x, to_y}")
+        
         print(f"✅ Dự đoán nước đi ICCS: {vector_to_move(predicted_move_vector)}")
+        choose_Pice = self.board.get_piece_at(from_x, from_y)  # Lấy quân cờ từ vị trí dự đoán
+        if choose_Pice is None: 
+            print("❌ Không tìm thấy quân cờ tại vị trí dự đoán!")
+        print(f"✅ Quân cờ dự đoán: {choose_Pice} tại {from_x, from_y}")
         # Kiểm tra các nước đi hợp lệ và chọn nước đi tốt nhất
         for piece, move in all_valid_moves:
             x, y = move  # Giải nén vị trí
