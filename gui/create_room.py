@@ -93,7 +93,6 @@ class CreateRoomForm:
         else:
             conn.sendall(b'WRONG_PASSWORD')
             self.status_label.config(text="Wrong password! Connection refused.")
-            # conn.close()
 
     def show_board(self, room_name, conn):
         # Xóa UI cũ
@@ -118,7 +117,10 @@ class CreateRoomForm:
 
     def back_to_menu_from_board(self):
         try:
-            self.server_socket.close()
+            if self.server_socket:
+                print("Closing socket due to error in listen_for_opponent!")
+                # self.server_socket.close()
+                # self.server_socket = None
         except Exception:
             pass
         self.root.destroy()

@@ -27,7 +27,13 @@ def create_PlayvsAI(main_window, main_menu, sound_manager):
     back_button = tk.Button(board_window, text="Back to Menu", command=lambda: [sound_manager.play_click_sound(),config_font.change_gate(board_window, main_menu)])
     back_button.place(x=10)
 
-    board_window.mainloop()
+    try:
+        board_window.mainloop()
+    except Exception as e:
+        print("Mainloop exception:", e)
+        import traceback; traceback.print_exc()
+    finally:
+        print("Mainloop exited!")
     
 
 # create_PlayvsAI(tk.Tk(),tk.Toplevel());

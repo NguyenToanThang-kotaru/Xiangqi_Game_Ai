@@ -47,7 +47,11 @@ username_label = tkinter.Label(
     frame,text= "Username",bg="#333333",fg="white",font=(config_font.get_font(10)))
 
 username_entry = tkinter.Entry(frame,font=(config_font.get_font(10)))
-password_entry = tkinter.Entry(frame, show="*",font=(config_font.get_font(10)))
+password_entry = tkinter.Entry(frame, show="*", font=(config_font.get_font(10)))
+
+# delete if need
+username_entry.insert(0, "thienn")
+password_entry.insert(0, "123123")
 
 password_label = tkinter.Label(
     frame,text="Password",bg="#333333",fg="white",font=(config_font.get_font(10)))
@@ -142,4 +146,10 @@ def display_menu(flag):
     else:
         WrongPassWord.grid(row=3,column=0,columnspan=2,sticky="s")
 
-window.mainloop()
+try:
+    window.mainloop()
+except Exception as e:
+    print("Mainloop exception:", e)
+    import traceback; traceback.print_exc()
+finally:
+    print("Mainloop exited!")

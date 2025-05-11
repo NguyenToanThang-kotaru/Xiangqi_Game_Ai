@@ -83,4 +83,10 @@ class PlayerVsPlayer:
 if __name__ == "__main__":
     root = tk.Tk()
     PlayerVsPlayer(root, root)
-    root.mainloop()
+    try:
+        root.mainloop()
+    except Exception as e:
+        print("Mainloop exception:", e)
+        import traceback; traceback.print_exc()
+    finally:
+        print("Mainloop exited!")
