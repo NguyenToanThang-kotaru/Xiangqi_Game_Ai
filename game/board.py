@@ -452,8 +452,8 @@ class Board:
             traceback.print_exc()
             if self.conn:
                 print("Closing socket due to error in listen_for_opponent!")
-                # self.conn.close()
-                # self.conn = None
+                self.conn.close()
+                self.conn = None
 
     def apply_move_from_network(self, x1, y1, x2, y2):
         piece = Board.board_state[y1][x1]

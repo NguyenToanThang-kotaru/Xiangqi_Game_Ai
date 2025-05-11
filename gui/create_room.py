@@ -119,8 +119,8 @@ class CreateRoomForm:
         try:
             if self.server_socket:
                 print("Closing socket due to error in listen_for_opponent!")
-                # self.server_socket.close()
-                # self.server_socket = None
+                self.server_socket.close()
+                self.server_socket = None
         except Exception:
             pass
         self.root.destroy()

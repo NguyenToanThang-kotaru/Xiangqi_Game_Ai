@@ -94,8 +94,8 @@ class WaitingRoom:
         try:
             if self.client_socket:
                 print("Closing socket due to error in listen_for_opponent!")
-                # self.client_socket.close()
-                # self.client_socket = None
+                self.client_socket.close()
+                self.client_socket = None
         except Exception:
             pass
         self.parent.destroy()
