@@ -11,11 +11,11 @@ def connect_db():
         password="",
         database="xiangqi"
     )
-    
+X_test = pd.read_csv("dataset/X_test.csv")
 class AIModel:
     def __init__(self, board):
         self.board = board  # Nhận đối tượng bàn cờ khi khởi tạo
-        self.model_move = joblib.load("ai/random_forest_move_predictor.pkl")  # ✅ Tải mô hình duy nhất
+        self.model_move = joblib.load("ai/random_forest_model2.pkl")  # ✅ Tải mô hình duy nhất
         print("✅ AI Model Loaded!")
 
     def fen_to_array(self,fen):
@@ -39,14 +39,15 @@ class AIModel:
                 continue  
 
         # Thêm lượt đi vào mảng số (0 nếu là 'w', 1 nếu là 'b')
-        turn_value = 1 if turn == 'w' else 0
+        turn_value = 0 if turn == 'w' else 1
 
         return board_array ,turn_value
 
     def predict_best_move(self):
-        """Dự đoán nước đi tốt nhất"""
+        """Dự đoán nước đi tốt nhất từ winrate của mỗi nước đi"""
         all_valid_moves = []
-        
+
+        # Lấy tất cả các nước đi hợp lệ của quân cờ đen
         for piece in self.board.pieces:
             if piece.color == "black":
                 valid_moves = piece.get_valid_moves(self.board)
@@ -55,120 +56,55 @@ class AIModel:
 
         if not all_valid_moves:
             print("⚠️ Không có nước đi hợp lệ!")
-            return None  
+            return None
 
-        best_moves = []  
-        best_score = -float('inf')
+        best_moves = []
+        best_winrate = -float('inf')  # Đặt winrate thấp nhất ban đầu
 
         # Chuyển FEN sang mảng số
         print("đây là FEN: ", self.board.to_fen())
-        fen_array,turn_value = self.fen_to_array(self.board.to_fen())
-        print(f"✅ FEN Array: {len(fen_array)}")
-        winrate = get_winrate_from_fen_fulltext(self.board.to_fen())
-        fen_with_turn = fen_array + [turn_value] + [winrate]
-        
-        # Dự đoán trực tiếp vector nước đi từ mô hình
-        input_data = pd.DataFrame([fen_with_turn], columns=[str(i) for i in range(len(fen_with_turn))])
-        print(input_data.columns)
-        predicted_move_vector = self.model_move.predict(input_data)[0]  # Dự đoán vector nước đi
-        from_x = round(predicted_move_vector[0])
-        from_y = round(predicted_move_vector[1])
-        to_x   = round(predicted_move_vector[2])
-        to_y   = round(predicted_move_vector[3])
-        print(f"✅ Dự đoán vector nước đi: {from_x, from_y, to_x, to_y}")
-        
-        print(f"✅ Dự đoán nước đi ICCS: {vector_to_move(predicted_move_vector)}")
-        choose_Pice = self.board.get_piece_at(from_x, from_y)  # Lấy quân cờ từ vị trí dự đoán
-        if choose_Pice is None: 
-            print("❌ Không tìm thấy quân cờ tại vị trí dự đoán!")
-        print(f"✅ Quân cờ dự đoán: {choose_Pice} tại {from_x, from_y}")
-        # Kiểm tra các nước đi hợp lệ và chọn nước đi tốt nhất
-        for piece, move in all_valid_moves:
-            x, y = move  # Giải nén vị trí
+        fen_array, turn_value = self.fen_to_array(self.board.to_fen())
+        fen_with_turn = fen_array + [turn_value] 
 
-            # Kiểm tra xem dự đoán có phù hợp với nước đi hợp lệ hay không
-
-            combined_score = 0
+        # Duyệt qua tất cả các nước đi hợp lệ
+        for move in self.board.get_all_valid_moves("black"):
+            from_x, from_y, end_x, end_y = move  # Giải nén vị trí nước đi
+            print(f"✅ Duyệt nước đi từ {from_x, from_y} đến {end_x,end_y}")
+            # Chuyển FEN và thông tin nước đi thành dữ liệu vào mô hình
+            fen_with_move =fen_with_turn + [from_x, from_y, end_x, end_y]  # Thêm thông tin nước đi vào FEN
             
-            # Kiểm tra có ăn quân không
-            captured_piece = self.board.get_piece_at(x, y)
-            if captured_piece and captured_piece.color != piece.color:  # Nếu có thể ăn quân địch
-                combined_score += captured_piece.value * 0.5  # Cộng điểm dựa trên giá trị quân bị ăn
+            input_data = pd.DataFrame([fen_with_move], columns=[str(i) for i in range(95)])  # Chuyển đổi thành DataFrame
 
-            if combined_score > best_score:
-                best_score = combined_score
-                best_moves = [(piece, move)]
-            if(from_x, from_y, to_x, to_y) == (piece.x, piece.y, x, y):  # Nếu dự đoán đúng nước đi
-                combined_score += 200
-                print(f"✅ Dự đoán đúng nước đi: {piece} từ {piece.x, piece.y} đến {x, y}")
-            elif (from_x, from_y, to_x, to_y) != (piece.x, piece.y, x, y):  # Nếu dự đoán sai nước đi
-                print(f"❌ Dự đoán sai nước đi: {piece} từ {piece.x, piece.y} đến {x, y}")
-            elif combined_score == best_score:
-                best_moves.append((piece, move))
+            # Dự đoán winrate cho mỗi nước đi từ mô hình
+            predicted_winrate = self.model_move.predict(input_data)[0]  # Dự đoán winrate cho nước đi
+            print(f"✅ Dự đoán winrate cho nước đi {self.board.get_piece_at(from_x,from_y)} từ {from_x, from_y} đến {end_x,end_y}: {predicted_winrate}")
+            enemy = self.board.get_piece_at(end_x, end_y)  # Lấy quân cờ địch ở vị trí đích
+            if enemy:
+                predicted_winrate += 2
+            # Chọn nước đi có winrate cao nhất
+            if predicted_winrate > best_winrate:
+                best_winrate = predicted_winrate
+                best_moves = [move]  # Reset lại nước đi tốt nhất
 
-        chosen_move = random.choice(best_moves)  # Chọn ngẫu nhiên trong các nước đi tốt nhất
-        print(f"✅ AI chọn nước đi: {chosen_move} với điểm {best_score}")
 
-        return chosen_move[1]  # Trả về nước đi (không phải cả tuple)
+        # Chọn ngẫu nhiên trong các nước đi tốt nhất có winrate cao nhất
+        print(f"✅ Nước đi tốt nhất có winrate cao nhất: {best_moves}")
+        
+    
+        return  best_moves  # Trả về nước đi tốt nhất
+
 
     def get_ai_move(self):
         """Lấy nước đi tốt nhất từ AI"""
         best_move = self.predict_best_move()
-
-        print(f"🔍 AI dự đoán nước đi: {best_move}")
-
         if not best_move:
+            return -50
+        piece = self.board.get_piece_at(best_move[0][0], best_move[0][1])
+        print(f"✅ Quân cờ: {piece} từ {best_move[0][1], best_move[0][0]} đến {best_move[0][3], best_move[0][2]}")
+        # print(f"✅ Nước đi tốt nhất: {piece} từ {best_move[0], best_move[1]} đến {best_move[2], best_move[3]}") 
+        if piece is None or best_move is None:
             print("❌ Không có nước đi hợp lệ! AI bị bí.")
             return None, None  
 
-        found_piece = None  # Lưu lại quân cờ nếu tìm thấy
-
-        # Kiểm tra danh sách nước đi hợp lệ của AI
-        for piece in self.board.pieces:
-            if piece.color == "black":
-                valid_moves = piece.get_valid_moves(self.board)
-                print(f"♟️ {piece}: {valid_moves}")
-
-                if best_move in valid_moves:
-                    found_piece = piece
-                    break  # Thoát vòng lặp khi tìm thấy quân cờ có thể đi
-
-        if found_piece:
-            print(f"✅ AI chọn {found_piece} từ {found_piece.x,found_piece.y} di chuyển đến {best_move}")
-            return found_piece, best_move  
-
-        print("❌ Không có quân cờ nào có thể thực hiện nước đi này.")
-        return None, None
-
-
-def get_winrate_from_fen_fulltext(fen):
-    conn = connect_db()
-    cursor = conn.cursor()
-    query = "SELECT * FROM ai_training_data WHERE MATCH(fen) AGAINST(%s IN BOOLEAN MODE) LIMIT 0, 25"
-    cursor.execute(query, (fen,))
-    result = cursor.fetchone()
-    if result:
-        print("co ket qua cua chuoi" ,fen," ket qua: ", result[3])
-        return result[3]  # Winrate
-    else:
-        print("khong co ket qua cua chuoi roiiii" )
-        return None  # Không tìm thấy FEN
-    # Ví dụ sử dụng
-    
-
-   
-def vector_to_move(predicted_move_vector):
-    # Giả sử predicted_move_vector có cấu trúc [start_col, start_row, end_col, end_row]
-    start_col, start_row, end_col, end_row = predicted_move_vector
-
-    # Chuyển start_col và start_row thành số nguyên
-    start_col = int(start_col)
-    start_row = int(start_row)
-    end_col = int(end_col)
-    end_row = int(end_row)
-
-    # Sử dụng các giá trị đã ép kiểu để tạo chuỗi ICCS
-    columns = 'abcdefghi'
-    start_iccs_row = 10 - start_row  # Đảo ngược hàng từ 0-9
-
-    return columns[start_col] + str(start_iccs_row) + columns[end_col] + str(10 - end_row)
+        to_pos = [best_move[0][2], best_move[0][3]]  # Lấy vị trí đích
+        return piece,to_pos 

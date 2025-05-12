@@ -45,7 +45,7 @@ login_label = tkinter.Label(
     frame,text="Login",bg="#333333",fg="#FF3399",font=(config_font.get_font(16)))
 username_label = tkinter.Label(
     frame,text= "Username",bg="#333333",fg="white",font=(config_font.get_font(10)))
-
+    
 username_entry = tkinter.Entry(frame,font=(config_font.get_font(10)))
 password_entry = tkinter.Entry(frame, show="*",font=(config_font.get_font(10)))
 

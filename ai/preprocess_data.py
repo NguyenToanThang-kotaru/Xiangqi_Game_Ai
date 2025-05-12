@@ -55,7 +55,6 @@ def move_to_vector(move):
     return [start_col, start_row, end_col, end_row]
 
 # Tiền xử lý dữ liệu
-# Tiền xử lý dữ liệu
 def preprocess_data():
     conn = connect_db()
     cursor = conn.cursor()
@@ -74,13 +73,13 @@ def preprocess_data():
         print(f"🔍 Debug FEN: {fen}")
         print(f"🔍 Debug Move: {move}")
         # Chỉ cần fen_array, turn_value và winrate làm đặc trưng
-        features = fen_array + [turn_value] + [winrate]
+        features = fen_array + [turn_value] + [move_vector[0], move_vector[1], move_vector[2], move_vector[3]]  # Đặc trưng từ FEN + turn_value + winrate
         
         # Dự đoán nước đi, nước đi là nhãn
-        target = move_vector
+        target = winrate
         
         # Thêm vào danh sách dữ liệu đã xử lý
-        processed_data.append(features + target)  # Đặc trưng + Nước đi (move_vector)
+        processed_data.append(features + [target])  # Đặc trưng + Nước đi (move_vector)
 
     print(f"🔍 Debug FEN: {fen}")
     print(f"🔍 FEN Array Length: {len(fen_array)}")

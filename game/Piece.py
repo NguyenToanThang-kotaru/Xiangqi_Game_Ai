@@ -52,6 +52,8 @@ class Piece:
     def __str__(self):
         return f"{self.name} tại ({self.x}, {self.y}) - Giá trị: {self.value}"
     
+
+    
     def get_valid_moves(self, board_state):
         """Trả về danh sách các nước đi hợp lệ cho quân cờ này"""
         game_logic = GameLogic()  # Khởi tạo logic game
@@ -61,7 +63,8 @@ class Piece:
         for y in range(10):
             for x in range(9):
                 if game_logic.check_move(self, (x, y), board_state):
-                    valid_moves.append((x, y))
+                    if game_logic.is_king_safe(self, (x, y), board_state)==None:
+                        valid_moves.append((x, y))
 
         return valid_moves
     

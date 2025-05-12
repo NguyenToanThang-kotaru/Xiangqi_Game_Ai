@@ -8,11 +8,11 @@ df = pd.read_csv("dataset/processed_data_cleaned.csv")
 total_columns = df.shape[1]
 
 # 🏷 Xác định đặc trưng (X) và nhãn (y_move)
-X = df.iloc[:, :-4]  # Bỏ 4 cột cuối (move_vector)
-y_move = df.iloc[:, -4:]  # 4 cột cuối là nhãn (move vector)
+X = df.iloc[:, :-1]  # Bỏ 4 cột cuối (move_vector)
+y_move = df.iloc[:, -1]  # 4 cột cuối là nhãn (move vector)
 
 print("📊 X columns:", X.columns)
-print("📊 y columns (move vector):", y_move.columns)
+print("📊 y columns (move vector):", y_move.name)
 
 # ✂️ Chia thành tập train (70%) và test (30%)
 X_train, X_test, y_move_train, y_move_test = train_test_split(X, y_move, test_size=0.3, random_state=42)
@@ -21,7 +21,7 @@ X_train, X_test, y_move_train, y_move_test = train_test_split(X, y_move, test_si
 print(f"📊 Số lượng mẫu train: {X_train.shape[0]}")
 print(f"📊 Số lượng mẫu test: {X_test.shape[0]}")
 print(f"📊 Số lượng cột X (đặc trưng): {X.shape[1]}")
-print(f"📊 Số lượng cột y (move_vector): {y_move.shape[1]}")
+print(f"📊 Số lượng cột y (move_vector): {y_move.shape[0]}")
 
 # 🏷 Xuất ra file để kiểm tra lại
 X_train.to_csv("dataset/X_train.csv", index=False)
