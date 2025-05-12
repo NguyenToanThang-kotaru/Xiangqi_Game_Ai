@@ -189,10 +189,11 @@ class Board:
         # trong trường hợp đã chọn quân cờ
         if self.selected_piece and 0<=col<9 and 0<=row<10:
             # Tạm thời không kiểm tra luật đi, chỉ thực hiện di chuyển
+            from_pos= (self.selected_piece.x, self.selected_piece.y)
             if self.move_piece(self.selected_piece, (col, row)) == 1: # nếu di chuyển quân cờ đến ô khác không phải là ô quân cờ đang nằm
             # self.move_piece(self.selected_piece, (col, row))
                 if self.conn:
-                    self.send_move((x, y), (col, row))
+                    self.send_move(from_pos, (col, row))
                 # self.print_board()
                 # fen = self.to_fen()
                 # print(fen)
@@ -424,40 +425,68 @@ class Board:
         return [[self.board_state[y][x] for x in range(9)] for y in range(10)]
     
     def send_move(self, from_pos, to_pos):
-        if not self.conn:
+        # from_pos should be where the piece was BEFORE moving
+        # to_pos should be the new position
+        data = f"{from_pos[0]},{from_pos[1]}:{to_pos[0]},{to_pos[1]}"
+        print(f"data: {data}")
+        if self.conn is not None:
+            self.conn.sendall(data.encode("utf-8"))
+            print("Sent move to opponent")
+        else:
+            print("Connection is closed, cannot send move")
             return
-        msg = f"{from_pos[0]},{from_pos[1]}->{to_pos[0]},{to_pos[1]}"
-        try:
-            self.conn.sendall(msg.encode())
-            print("✅ Gửi nước đi:", msg)
-        except Exception as e:
-            print("❌ Gửi nước đi thất bại:", e)
-
             
     def listen_for_opponent(self):
-        while True:
-            try:
+        if self.conn is None:
+            print("Connection not established.")
+            return
+        try:
+            while True and self.conn is not None:
                 data = self.conn.recv(1024)
                 if not data:
+                    print("Socket closed by peer.")
                     break
-                msg = data.decode().strip()
-                print("📥 Nhận dữ liệu:", msg)
+                print("Received data:", data)
+                message = data.decode()
+                from_str, to_str = message.split(":")
+                fx, fy = map(int, from_str.split(","))
+                tx, ty = map(int, to_str.split(","))
+                self.canvas.after(0, lambda: self.apply_opponent_move((fx, fy), (tx, ty)))
+        except Exception as e:
+            print("Connection error in listen_for_opponent:", e)
+            import traceback; traceback.print_exc()
+        finally:
+            print("listen_for_opponent thread exiting")
 
-                # Parse từ định dạng: "x1,y1->x2,y2"
-                parts = msg.split("->")
-                x1, y1 = map(int, parts[0].split(","))
-                x2, y2 = map(int, parts[1].split(","))
 
-                self.canvas.after(0, lambda: self.apply_move_from_network(x1, y1, x2, y2))
-            except Exception as e:
-                print("❌ Lỗi nhận nước đi:", e)
-                break
+    def apply_opponent_move(self, from_pos, to_pos):
+        try:
+            x, y = from_pos
+            print(f"from pos: {x}, {y}")
+            print(f"to pos: {to_pos}")
+            piece = self.board_state[y][x]
+            if not piece:
+                print("Opponent tried to move a nonexistent piece.")
+                return
+            self.selected_piece = piece
+            if self.move_piece(piece, to_pos) == 1:
+                print("Opponent moved:", piece.name, from_pos, "→", to_pos)
+                self.print_board()
+                self.game_logic.swap_turn()
+                Suggestion.clear()
+        except Exception as e:
+            print("Exception in apply_opponent_move:", e)
+            import traceback
+            traceback.print_exc()
+            if self.conn:
+                print("Closing socket due to error in listen_for_opponent!")
+                self.conn.close()
+                self.conn = None
 
-            
     def apply_move_from_network(self, x1, y1, x2, y2):
         piece = self.board_state[y1][x1]
         if piece and self.move_piece(piece, (x2, y2)) == 1:
             self.game_logic.swap_turn()
     
-
-
+    def __del__(self):
+        print("Board instance is being destroyed!")
