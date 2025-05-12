@@ -98,5 +98,5 @@ class WaitingRoom:
                 self.client_socket = None
         except Exception:
             pass
-        self.parent.destroy()
-        self.main_window.deiconify()
+        self.root.destroy()
+        self.parent.deiconify()
