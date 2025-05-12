@@ -24,7 +24,7 @@ class Suggestion:
         self.valid_moves.clear()
         for col in range(9):
             for row in range(10):
-                if self.game_logic.check_move(piece, (col, row), board_state):
+                if self.game_logic.check_move(piece, (col, row), board_state) and self.game_logic.is_king_safe(piece, (col, row), board_state) is None:
                     self.valid_moves.append((col, row))
         self.draw()
 

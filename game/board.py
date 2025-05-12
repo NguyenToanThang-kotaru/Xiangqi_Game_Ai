@@ -122,6 +122,7 @@ class Board:
                 # find the king that have same color as piece, and check if it's gonna be attacked
                 if self.game_logic.is_king_safe(piece, to_pos, Board.board_state) != None:
                     print("Không đi được vì sẽ bị chiếu - di chuyển quân")
+                    Suggestion.clear()
                     return 0
                 
                 print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
