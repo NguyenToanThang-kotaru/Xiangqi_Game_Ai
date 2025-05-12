@@ -4,7 +4,7 @@ from sound_manager import SoundManager
 from appState import AppState
 import socket
 import threading
-from game.board import Board
+from game.board import Board as Board_v2
 
 class WaitingRoom:
     def __init__(self, parent_window, pvp_window, main_window, sound_manager):
@@ -33,7 +33,7 @@ class WaitingRoom:
         self.status_label.pack(pady=10)
 
         self.ip_entry = tk.Entry(self.frame, font=config_font.get_font(12), bg="#333", fg="white")
-        self.ip_entry.insert(0, "")
+        self.ip_entry.insert(0, "192.168.1.4")
         self.ip_entry.pack(pady=5)
         self.pw_entry = tk.Entry(self.frame, font=config_font.get_font(12), bg="#333", fg="white", show="*")
         self.pw_entry.pack(pady=5)
@@ -64,17 +64,20 @@ class WaitingRoom:
 
     def connect_to_server(self, ip, password):
         PORT = 2000
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((ip, PORT))
-            self.client_socket = s
-            s.sendall(password.encode() if password else b'_EMPTY_')
-            response = s.recv(1024)
-            if response == b'OK':
-                room_name = s.recv(1024).decode()
-                self.status_label.config(text="Connected! Starting game...")
-                self.show_board_v2(room_name)
-            else:
-                self.status_label.config(text="Wrong password or connection refused.")
+        s =  socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((ip, PORT))
+        self.client_socket = s
+        s.sendall(password.encode() if password else b'_EMPTY_')
+        response = s.recv(1024).decode()
+        print('received response from the server')
+        if response.startswith("OK|"):
+            print('password corrected')
+            room_name = response.split("|", 1)[1]
+            self.status_label.config(text="Connected! Starting game...")
+            self.show_board_v2(room_name)
+        else:
+            print('password incorrected')
+            self.status_label.config(text="Wrong password or connection refused.")
     def show_board_v2(self, room_name):
         self.status_label.destroy()
         self.frame.destroy()    
@@ -83,13 +86,16 @@ class WaitingRoom:
         
         self.board_canvas = tk.Canvas(self.parent, width=400, height=425, bg="#333333")
         self.board_canvas.pack(expand=True)
-        Board(self.board_canvas,self.client_socket)
+        Board_v2(self.board_canvas,self.client_socket)
         back_btn = tk.Button(self.parent, text="Back", bg="#FF3399", fg="white", font=config_font.get_font(12), padx=20, pady=8, command=self.back_to_menu_from_board)
         back_btn.pack(pady=10)
 
     def back_to_menu_from_board(self):
         try:
-            self.client_socket.close()
+            if self.client_socket:
+                print("Closing socket due to error in listen_for_opponent!")
+                self.client_socket.close()
+                self.client_socket = None
         except Exception:
             pass
         self.parent.destroy()

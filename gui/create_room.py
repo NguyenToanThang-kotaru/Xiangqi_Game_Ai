@@ -52,7 +52,7 @@ class CreateRoomForm:
         self.sound_manager.play_click_sound()
         self.room_name = self.room_name_entry.get()
         time_limit = self.time_entry.get()
-        password = self.password_entry.get()
+        password = (self.password_entry.get() if self.password_entry.get() else '_EMPTY_')
         print(
             f"Tạo phòng: {self.room_name}, Thời gian: {time_limit}, Mật khẩu: {password}")
         self.frame.pack_forget()
@@ -76,13 +76,13 @@ class CreateRoomForm:
 
         # Nhận password từ client
         client_password = conn.recv(1024).decode()
-        if client_password == '_EMPTY_':
-            client_password = ''
+        print("Received password from client")
 
         # Kiểm tra password
-        if client_password == password or password is None:
-            conn.sendall(b'OK')
-            conn.sendall(self.room_name.encode())
+        if client_password == password:
+            print("Password corrected")
+            conn.sendall(f"OK|{self.room_name}".encode())
+            print("sent signal 'OK' to the client")
             self.status_label.config(text="Player joined! Starting game...")
 
             # Lưu conn lên instance để dùng gửi nước đi sau này
@@ -93,7 +93,6 @@ class CreateRoomForm:
         else:
             conn.sendall(b'WRONG_PASSWORD')
             self.status_label.config(text="Wrong password! Connection refused.")
-            conn.close()
 
     def show_board(self, room_name, conn):
         # Xóa UI cũ
@@ -118,7 +117,10 @@ class CreateRoomForm:
 
     def back_to_menu_from_board(self):
         try:
-            self.server_socket.close()
+            if self.server_socket:
+                print("Closing socket due to error in listen_for_opponent!")
+                self.server_socket.close()
+                self.server_socket = None
         except Exception:
             pass
         self.root.destroy()

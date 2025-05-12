@@ -1,0 +1,10 @@
+red go first
+after red move a piece, red could not move until receive move from black
+after moving a piece, it's data(FEN) will be sent to the black piece
+
+main files to check
+create_room
+waiting_room
+board.py
+
+error: when client type wrong password, the server stop connection

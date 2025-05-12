@@ -49,4 +49,10 @@ def openMenu(main_window):
     #option_button.config(command=lambda: display_option_menu(menu,main_window)) # Gọi menu cài đặt
     logout_button = Option(frameMenu,"LOGOUT", lambda: config_font.change_gate(menu, main_window))
     #logout_button.config(command=lambda: config_font.change_gate(menu,main_window))
-    menu.mainloop()
+    try:
+        menu.mainloop()
+    except Exception as e:
+        print("Mainloop exception:", e)
+        import traceback; traceback.print_exc()
+    finally:
+        print("Mainloop exited!")

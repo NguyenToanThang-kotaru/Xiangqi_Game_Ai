@@ -1,3 +1,4 @@
+import math
 import random
 import tkinter as tk
 import sys
@@ -38,6 +39,7 @@ class Board:
         self.place_pieces()
         self.canvas.bind("<Button-1>", self.on_click)
         self.conn =conn
+        self.print_board()
         
         if self.conn:
             import threading
@@ -78,25 +80,7 @@ class Board:
             "phao_black": tk.PhotoImage(file="assets/black-phao.png"),
             "tot_black": tk.PhotoImage(file="assets/black-tot.png"),
         }
-
-        # đường truyền kiểu linux
-        # self.images = {
-        #     "xe_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-xe.png"),
-        #     "ma_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-ma.png"),
-        #     "tuongj_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-tuongj.png"),
-        #     "si_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-si.png"),
-        #     "tuong_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-tuong.png"),
-        #     "phao_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-phao.png"),
-        #     "tot_red": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/red-tot.png"),
-        #     "xe_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-xe.png"),
-        #     "ma_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-ma.png"),
-        #     "tuongj_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-tuongj.png"),
-        #     "si_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-si.png"),
-        #     "tuong_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-tuong.png"),
-        #     "phao_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-phao.png"),
-        #     "tot_black": tk.PhotoImage(file="/home/thien408/Documents/programming/python/Xiangqi_Game_Ai/assets/black-tot.png"),
-        # } 
-        
+       
     def place_pieces(self):
         initial_pieces = [
             # Quân đỏ (dưới bàn cờ)
@@ -181,34 +165,44 @@ class Board:
     def on_click(self, event):
         """Xử lý click: chọn hoặc di chuyển quân cờ"""
     
-        x = (event.x / CELL_SIZE * CELL_SIZE) - 20
-        y = (event.y / CELL_SIZE * CELL_SIZE) - 15
-        col = round(event.x / CELL_SIZE) - 1  
-        row = round(event.y / CELL_SIZE) - 1
+        x = ((event.x / CELL_SIZE * CELL_SIZE) - 20)
+        y = ((event.y / CELL_SIZE * CELL_SIZE) - 15)
+        col = (round(event.x / CELL_SIZE) - 1)  
+        row = (round(event.y / CELL_SIZE) - 1)
+
+        if not self.selected_piece:
+            piece = self.get_piece_by_position(event.x - 20, event.y - 15)
+            if piece and self.game_logic.is_correct_turn(piece):
+                self.selected_piece = piece
+                print(f"Chọn quân({piece.name}) cờ tại ({piece.x}, {piece.y})")
+                self.suggestion.suggest(piece, Board.board_state)
+            else:
+                print("Không thể chọn quân vì sai màu hoặc không có quân!")
+            return
 
         # trong trường hợp đã chọn quân cờ
         if self.selected_piece and 0<=col<9 and 0<=row<10:
-            # Tạm thời không kiểm tra luật đi, chỉ thực hiện di chuyển
-            if self.move_piece(self.selected_piece, (col, row)) == 1: # nếu di chuyển quân cờ đến ô khác không phải là ô quân cờ đang nằm
-            # self.move_piece(self.selected_piece, (col, row))
-                if self.conn:
-                    self.send_move((x, y), (col, row))
-                # self.print_board()
-                # fen = self.to_fen()
-                # print(fen)
+            from_pos = (self.selected_piece.x, self.selected_piece.y)
+        if self.move_piece(self.selected_piece, (col, row)) == 1: # nếu di chuyển quân cờ đến ô khác không phải là ô quân cờ đang nằm
+        # self.move_piece(self.selected_piece, (col, row))
+            if self.conn:
+                # piece = self.get_piece_by_position(x, y)
+                self.send_move(from_pos, (col, row))
+                print("Sent move to opponent")
+            self.print_board()
+            # fen = self.to_fen()
+            # print(fen)
 
-                # check if the king is checkmated
-                red_king = self.game_logic.find_king(self.board_state, "red")
-                black_king = self.game_logic.find_king(self.board_state, "black")
+            # check if the king is checkmated
+            red_king = self.game_logic.find_king(self.board_state, "red")
+            black_king = self.game_logic.find_king(self.board_state, "black")
 
-                if red_king and self.game_logic.is_checkmated(red_king, self.board_state):
-                    print("Red king is checkmated")
-                    self.canvas.unbind("<Button-1>")
-                elif black_king and self.game_logic.is_checkmated(black_king, self.board_state):
-                    print("Black king is checkmated")
-                    self.canvas.unbind("<Button-1>")
-    
-                # --------------- Update FEN String to check repetition ---------------
+            if red_king and self.game_logic.is_checkmated(red_king, self.board_state):
+                print("Red king is checkmated")
+                self.canvas.unbind("<Button-1>")
+            elif black_king and self.game_logic.is_checkmated(black_king, self.board_state):
+                print("Black king is checkmated")
+                self.canvas.unbind("<Button-1>")
 
                 fen = self.to_fen()
                 self.fen_counts[fen] += 1
@@ -424,43 +418,71 @@ class Board:
         return self.board_state[row][col] 
     def get_board_array(self):
         """Chuyển bàn cờ thành danh sách 2D"""
-        return [[self.board_state[y][x] for x in range(9)] for y in range(10)]
-    
+        return [[Board.board_state[y][x] for x in range(9)] for y in range(10)]
+        
     def send_move(self, from_pos, to_pos):
-        if not self.conn:
+        # from_pos should be where the piece was BEFORE moving
+        # to_pos should be the new position
+        data = f"{from_pos[0]},{from_pos[1]}:{to_pos[0]},{to_pos[1]}"
+        print(f"data: {data}")
+        if self.conn is not None:
+            self.conn.sendall(data.encode("utf-8"))
+            print("Sent move to opponent")
+        else:
+            print("Connection is closed, cannot send move")
             return
-        msg = f"{from_pos[0]},{from_pos[1]}->{to_pos[0]},{to_pos[1]}"
-        try:
-            self.conn.sendall(msg.encode())
-            print("✅ Gửi nước đi:", msg)
-        except Exception as e:
-            print("❌ Gửi nước đi thất bại:", e)
-
             
     def listen_for_opponent(self):
-        while True:
-            try:
+        if self.conn is None:
+            print("Connection not established.")
+            return
+        try:
+            while True and self.conn is not None:
                 data = self.conn.recv(1024)
                 if not data:
+                    print("Socket closed by peer.")
                     break
-                msg = data.decode().strip()
-                print("📥 Nhận dữ liệu:", msg)
+                print("Received data:", data)
+                message = data.decode()
+                from_str, to_str = message.split(":")
+                fx, fy = map(int, from_str.split(","))
+                tx, ty = map(int, to_str.split(","))
+                self.canvas.after(0, lambda: self.apply_opponent_move((fx, fy), (tx, ty)))
+        except Exception as e:
+            print("Connection error in listen_for_opponent:", e)
+            import traceback; traceback.print_exc()
+        finally:
+            print("listen_for_opponent thread exiting")
 
-                # Parse từ định dạng: "x1,y1->x2,y2"
-                parts = msg.split("->")
-                x1, y1 = map(int, parts[0].split(","))
-                x2, y2 = map(int, parts[1].split(","))
 
-                self.canvas.after(0, lambda: self.apply_move_from_network(x1, y1, x2, y2))
-            except Exception as e:
-                print("❌ Lỗi nhận nước đi:", e)
-                break
+    def apply_opponent_move(self, from_pos, to_pos):
+        try:
+            x, y = from_pos
+            print(f"from pos: {x}, {y}")
+            print(f"to pos: {to_pos}")
+            piece = Board.board_state[y][x]
+            if not piece:
+                print("Opponent tried to move a nonexistent piece.")
+                return
+            self.selected_piece = piece
+            if self.move_piece(piece, to_pos) == 1:
+                print("Opponent moved:", piece.name, from_pos, "→", to_pos)
+                self.print_board()
+                self.game_logic.swap_turn()
+                Suggestion.clear()
+        except Exception as e:
+            print("Exception in apply_opponent_move:", e)
+            import traceback
+            traceback.print_exc()
+            if self.conn:
+                print("Closing socket due to error in listen_for_opponent!")
+                self.conn.close()
+                self.conn = None
 
-            
     def apply_move_from_network(self, x1, y1, x2, y2):
-        piece = self.board_state[y1][x1]
+        piece = Board.board_state[y1][x1]
         if piece and self.move_piece(piece, (x2, y2)) == 1:
             self.game_logic.swap_turn()
     
-
-
+    def __del__(self):
+        print("Board instance is being destroyed!")
