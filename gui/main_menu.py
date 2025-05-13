@@ -15,7 +15,7 @@ def display_option_menu(menu,main_window): # Hàm mở menu cài đặt
     OptionMenu(menu,main_window)
     
 def openMenu(main_window):
-
+    
     # pixel_font = font.Font(family="Press Start 2P", size=20)
     menu = tk.Toplevel()
     menu.title("Xiangqi")

@@ -1,26 +1,13 @@
 
 import joblib
 import pandas as pd
-import mysql.connector
-import sys
-import os
-# from game.checkmate import is_checkmated, is_checked
 
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import joblib
-def connect_db():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="xiangqi"
-    )
 class AIModel:
     def __init__(self, board):
         self.board = board  # Nhận đối tượng bàn cờ khi khởi tạo
         self.model_move = joblib.load("ai/random_forest_model_v2.pkl")  # ✅ Tải mô hình duy nhất
         print("✅ AI Model Loaded!")
-
     def fen_to_array(self,fen):
         PIECE_MAPPING = {
             'r': 1, 'n': 2, 'b': 3, 'a': 4, 'k': 5, 'c': 6, 'p': 7,  
@@ -82,7 +69,6 @@ class AIModel:
             # predicted_winrate = self.model_move.prepredict_random_forestdict(input_data)[0]  # Dự đoán winrate cho nước đi
             # print(input_data)
             predicted_winrate = predict_random_forest(self.model_move, input_data)
-            
             print(f"✅ Dự đoán winrate cho nước đi {self.board.get_piece_at(from_x,from_y)} từ {from_x, from_y} đến {end_x,end_y}: {predicted_winrate}")
             enemy = self.board.get_piece_at(end_x, end_y)  # Lấy quân cờ địch ở vị trí đích
             if enemy:
