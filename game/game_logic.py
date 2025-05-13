@@ -60,6 +60,7 @@ class GameLogic:
             return False
         enemy_piece = self.is_checked(king_piece, board_state)
         if enemy_piece:
+            print(f"Enemy piece is: {enemy_piece.name}")
             if not self.is_other_have_valid_move(enemy_piece, king_piece, board_state):
                 return True
         return False
@@ -69,22 +70,23 @@ class GameLogic:
         attacking_moves = []
         block_checkmate = []
 
-        king_x, king_y = king_piece.x, king_piece.y
-        attacking_moves.append((attacking_piece.x, attacking_piece.y))
-        
+        # Collect all valid moves for the attacking piece
         for row in range(10):
             for col in range(9):
                 if self.check_move(attacking_piece, (col, row), board_state):
                     attacking_moves.append((col, row))
 
+        # Check if any defending piece can block or capture the attacking piece
         for y in range(10):
             for x in range(9):
                 piece = board_state[y][x]
-                if piece is not None:
-                    if piece.color == king_piece.color:
-                        for position in attacking_moves:
-                            if self.check_move(piece, position, board_state):
-                                block_checkmate.append({piece: position}) 
+                if piece is not None and piece.color == king_piece.color:
+                    for position in attacking_moves:
+                        if self.check_move(piece, position, board_state):
+                            # Simulate the move and check if the king is safe
+                            new_board = self.get_board_state_after_move(board_state, piece, position[0], position[1])
+                            if not self.is_checked(king_piece, new_board):
+                                block_checkmate.append({piece: position})
 
         # Check if the king can move to a safe position
         for row in range(10):
@@ -92,10 +94,10 @@ class GameLogic:
                 if self.check_move(king_piece, (col, row), board_state):
                     # Simulate the move
                     new_board = self.get_board_state_after_move(board_state, king_piece, col, row)
-                    if not self.is_checked(king_piece, new_board):
-                        block_checkmate.append({king_piece: (col, row)})   
-        return len(block_checkmate) > 0
+                    if not self.is_checked(self.find_king(new_board, king_piece.color), new_board):
+                        block_checkmate.append({king_piece: (col, row)})
 
+        return len(block_checkmate) > 0
 
     def check_move(self, piece, to_pos, board_state):
         x2, y2 = to_pos

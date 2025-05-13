@@ -54,7 +54,6 @@ class WaitingRoom:
         self.running = False
         self.sound_manager.play_click_sound()
         self.frame.destroy()                   
-        self.pvp_window.show_again()           
 
     def join_room(self):
         ip = self.ip_entry.get()
@@ -120,4 +119,4 @@ class WaitingRoom:
         except Exception:
             pass
         self.parent.destroy()
-        self.main_window.deiconify()
+        self.pvp_window.menu.deiconify()

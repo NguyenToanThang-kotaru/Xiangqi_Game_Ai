@@ -203,6 +203,27 @@ class Board:
                     # self.print_board()
                     # fen = self.to_fen()
                     # print(fen)
+
+                red_king = self.game_logic.find_king(self.board_state, "red")
+                black_king = self.game_logic.find_king(self.board_state, "black")
+
+                from tkinter import messagebox
+                if red_king and self.game_logic.is_checkmated(red_king, self.board_state):
+                    messagebox.showinfo("Game Over", "Black wins!")
+                    self.canvas.unbind("<Button-1>")
+                elif black_king and self.game_logic.is_checkmated(black_king, self.board_state):
+                    messagebox.showinfo("Game Over", "Red wins!")
+                    self.canvas.unbind("<Button-1>")
+
+                # Add a button to go back to the main menu
+                def go_to_main_menu():
+                    self.canvas.delete("all")  # Clear the canvas
+                    # Logic to navigate back to the main menu
+                    print("Returning to main menu...")
+
+                main_menu_button = tk.Button(self.canvas.master, text="Main Menu", command=go_to_main_menu)
+                main_menu_button.place(x=10, y=10)  # Adjust the position as needed
+
     
                 # --------------- Update FEN String to check repetition ---------------
 
@@ -222,19 +243,6 @@ class Board:
                     if self.game_logic.current_turn == "black":
                         self.make_ai_move()
                         self.game_logic.swap_turn()
-
-                # Check if the game is ended by checkmate
-                color = "red" if self.game_logic.current_turn == "black" else "black"
-                print("Cheking checkmate: Current turn:", self.game_logic.current_turn)
-                king_piece = self.game_logic.find_king(self.board_state, color)
-                self.print_board()
-                from tkinter import messagebox
-                if king_piece.color == "red" and self.game_logic.is_checkmated(king_piece, self.board_state):
-                    messagebox.showinfo("Game Over", "Red king is checkmated! Black wins!")
-                    self.canvas.unbind("<Button-1>")  # Disable further moves
-                elif king_piece.color == "black" and self.game_logic.is_checkmated(king_piece, self.board_state):
-                    messagebox.showinfo("Game Over", "Black king is checkmated! Red wins!")
-                    self.canvas.unbind("<Button-1>")  # Disable further moves
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
         # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
@@ -515,6 +523,26 @@ class Board:
                 # self.print_board()
                 self.game_logic.swap_turn()
                 Suggestion.clear()
+                red_king = self.game_logic.find_king(self.board_state, "red")
+                black_king = self.game_logic.find_king(self.board_state, "black")
+
+                from tkinter import messagebox
+                if red_king and self.game_logic.is_checkmated(red_king, self.board_state):
+                    messagebox.showinfo("Game Over", "Black wins!")
+                    self.canvas.unbind("<Button-1>")
+                elif black_king and self.game_logic.is_checkmated(black_king, self.board_state):
+                    messagebox.showinfo("Game Over", "Red wins!")
+                    self.canvas.unbind("<Button-1>")
+
+                # Add a button to go back to the main menu
+                def go_to_main_menu():
+                    self.canvas.delete("all")  # Clear the canvas
+                    # Logic to navigate back to the main menu
+                    print("Returning to main menu...")
+
+                main_menu_button = tk.Button(self.canvas.master, text="Main Menu", command=go_to_main_menu)
+                main_menu_button.place(x=10, y=10)  # Adjust the position as needed
+
         except Exception as e:
             print("Exception in apply_opponent_move:", e)
             import traceback
