@@ -48,8 +48,6 @@ def build_decision_tree(X, y, max_depth=3, max_features=None, depth=0):
             if mse < best_mse:
                 best_mse = mse
                 best_split = (feature_index, threshold)
-                best_left_y = left_y
-                best_right_y = right_y
     
     # Phân chia dữ liệu và xây dựng các nhánh con
     if best_split is None:

@@ -28,23 +28,23 @@ class OptionMenu:
                          font=config_font.get_font(20), fg="pink", bg="black")
         title.pack(pady=15)
         
-        title = tk.Label(self.root, text="Level", 
-                         font=config_font.get_font(14), fg="white", bg="black")
-        title.pack(pady=5)
+        # title = tk.Label(self.root, text="Level", 
+        #                  font=config_font.get_font(14), fg="white", bg="black")
+        # title.pack(pady=5)
 
         # Chọn độ khó
         difficulty_frame = tk.Frame(self.root, bg="black")
         difficulty_frame.pack(pady=10)
         
-        tk.Button(difficulty_frame, text="Easy", font=config_font.get_font(12), 
-                  command=lambda: [self.sound_manager.play_click_sound()],
-                  fg="white", bg="green", width=10).pack(side="left", padx=5)
-        tk.Button(difficulty_frame, text="Medium", font=config_font.get_font(12), 
-                  command=lambda: [self.sound_manager.play_click_sound()],
-                  fg="white", bg="orange", width=10).pack(side="left", padx=5)
-        tk.Button(difficulty_frame, text="Hard", font=config_font.get_font(12), 
-                  command=lambda: [self.sound_manager.play_click_sound()],
-                  fg="white", bg="red", width=10).pack(side="left", padx=5)
+        # tk.Button(difficulty_frame, text="Easy", font=config_font.get_font(12), 
+        #           command=lambda: [self.sound_manager.play_click_sound()],
+        #           fg="white", bg="green", width=10).pack(side="left", padx=5)
+        # tk.Button(difficulty_frame, text="Medium", font=config_font.get_font(12), 
+        #           command=lambda: [self.sound_manager.play_click_sound()],
+        #           fg="white", bg="orange", width=10).pack(side="left", padx=5)
+        # tk.Button(difficulty_frame, text="Hard", font=config_font.get_font(12), 
+        #           command=lambda: [self.sound_manager.play_click_sound()],
+        #           fg="white", bg="red", width=10).pack(side="left", padx=5)
 
         # Âm lượng nhạc nền
         self.music_volume = 50  # Mặc định 50%
@@ -99,7 +99,7 @@ class OptionMenu:
                                  width=5, fg="white", bg="gray")
 
         # Nút quay lại menu chính
-        exit_button = tk.Button(self.root, text="Back to Menu", 
+        exit_button = tk.Button(self.root, text="Back to Menu", font=config_font.get_font(12),
                                 command=lambda: [self.sound_manager.play_click_sound(), self.back_to_menu()],
                                 fg="white", bg="#FF3399", width=15)
         exit_button.pack(pady=20)

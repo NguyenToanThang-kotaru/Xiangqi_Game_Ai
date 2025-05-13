@@ -81,6 +81,9 @@ class WaitingRoom:
     def show_board_v2(self, room_name):
         self.status_label.destroy()
         self.frame.destroy()    
+        self.root.attributes('-fullscreen', True)
+        self.turn_label = tk.Label(self.root, text="Your turn: Black", fg="white", bg="black", font=config_font.get_font(14))
+        self.turn_label.pack(pady=10)
         room_label = tk.Label(self.parent, text=f"Room: {room_name}", fg="yellow", bg="black", font=config_font.get_font(16))
         room_label.pack(pady=10)
         

@@ -13,7 +13,6 @@ class CreateRoomForm:
         self.root = root
         self.parent = parent
         self.sound_manager = sound_manager
-
         self.frame = tk.Frame(self.root, bg="black")
         self.frame.pack(expand=True)
 
@@ -22,7 +21,7 @@ class CreateRoomForm:
         title.pack(pady=20)
 
         self.room_name_entry = self._create_labeled_entry("Room Name")
-        self.time_entry = self._create_labeled_entry("Time per move (seconds)")
+        # self.time_entry = self._create_labeled_entry("Time per move (seconds)")
         self.password_entry = self._create_labeled_entry(
             "Password (optional)", show="*")
 
@@ -51,10 +50,10 @@ class CreateRoomForm:
     def create_room(self):
         self.sound_manager.play_click_sound()
         self.room_name = self.room_name_entry.get()
-        time_limit = self.time_entry.get()
+        # time_limit = self.time_entry.get()
         password = (self.password_entry.get() if self.password_entry.get() else '_EMPTY_')
         print(
-            f"Tạo phòng: {self.room_name}, Thời gian: {time_limit}, Mật khẩu: {password}")
+            f"Tạo phòng: {self.room_name}, Mật khẩu: {password}")
         self.frame.pack_forget()
         self.status_label = tk.Label(self.root, text="Waiting for player to join...",
                                      fg="white", bg="black", font=config_font.get_font(14))
@@ -98,14 +97,16 @@ class CreateRoomForm:
         # Xóa UI cũ
         self.status_label.destroy()
         self.frame.destroy()
-
+        self.root.attributes('-fullscreen', True)
         # Hiển thị tên phòng
         room_label = tk.Label(self.root, text=f"Room: {room_name}", fg="yellow",
                             bg="black", font=config_font.get_font(16))
         room_label.pack(pady=10)
+        self.turn_label = tk.Label(self.root, text="Your turn: red", fg="red", bg="black", font=config_font.get_font(14))
+        self.turn_label.pack(pady=10)
 
         # Tạo canvas và truyền conn vào Board
-        self.board_canvas = tk.Canvas(self.root, width=400, height=525, bg="#333333")
+        self.board_canvas = tk.Canvas(self.root, width=400, height=425, bg="#333333")
         self.board_canvas.pack(expand=True)
         Board(self.board_canvas, conn,"red")   # ← conn ở đây
 
