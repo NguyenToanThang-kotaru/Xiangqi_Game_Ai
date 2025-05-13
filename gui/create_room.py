@@ -105,7 +105,7 @@ class CreateRoomForm:
         room_label.pack(pady=10)
 
         # Tạo canvas và truyền conn vào Board
-        self.board_canvas = tk.Canvas(self.root, width=400, height=425, bg="#333333")
+        self.board_canvas = tk.Canvas(self.root, width=400, height=525, bg="#333333")
         self.board_canvas.pack(expand=True)
         Board(self.board_canvas, conn)   # ← conn ở đây
 
