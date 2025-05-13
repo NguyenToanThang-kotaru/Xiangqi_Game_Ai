@@ -1,9 +1,13 @@
-import random
+
 import joblib
-import numpy as np
 import pandas as pd
 import mysql.connector
+import sys
+import os
+# from game.checkmate import is_checkmated, is_checked
 
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import joblib
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
@@ -11,11 +15,10 @@ def connect_db():
         password="",
         database="xiangqi"
     )
-X_test = pd.read_csv("dataset/X_test.csv")
 class AIModel:
     def __init__(self, board):
         self.board = board  # Nhận đối tượng bàn cờ khi khởi tạo
-        self.model_move = joblib.load("ai/random_forest_model2.pkl")  # ✅ Tải mô hình duy nhất
+        self.model_move = joblib.load("ai/random_forest_model_v2.pkl")  # ✅ Tải mô hình duy nhất
         print("✅ AI Model Loaded!")
 
     def fen_to_array(self,fen):
@@ -74,13 +77,16 @@ class AIModel:
             fen_with_move =fen_with_turn + [from_x, from_y, end_x, end_y]  # Thêm thông tin nước đi vào FEN
             
             input_data = pd.DataFrame([fen_with_move], columns=[str(i) for i in range(95)])  # Chuyển đổi thành DataFrame
-
+            input_data = input_data.to_numpy().flatten()
             # Dự đoán winrate cho mỗi nước đi từ mô hình
-            predicted_winrate = self.model_move.predict(input_data)[0]  # Dự đoán winrate cho nước đi
+            # predicted_winrate = self.model_move.prepredict_random_forestdict(input_data)[0]  # Dự đoán winrate cho nước đi
+            # print(input_data)
+            predicted_winrate = predict_random_forest(self.model_move, input_data)
+            
             print(f"✅ Dự đoán winrate cho nước đi {self.board.get_piece_at(from_x,from_y)} từ {from_x, from_y} đến {end_x,end_y}: {predicted_winrate}")
             enemy = self.board.get_piece_at(end_x, end_y)  # Lấy quân cờ địch ở vị trí đích
             if enemy:
-                predicted_winrate += 2
+                predicted_winrate += 0.8
             # Chọn nước đi có winrate cao nhất
             if predicted_winrate > best_winrate:
                 best_winrate = predicted_winrate
@@ -108,3 +114,33 @@ class AIModel:
 
         to_pos = [best_move[0][2], best_move[0][3]]  # Lấy vị trí đích
         return piece,to_pos 
+
+def predict_decision_tree(tree, X):
+    """
+    Hàm dự đoán cho một cây quyết định.
+    :param tree: Cây quyết định.
+    :param X: Dữ liệu đầu vào (vector đặc trưng).
+    :return: Dự đoán từ cây quyết định.
+    """
+    if not isinstance(tree, dict):  # Đến lá của cây, trả về giá trị
+        return tree
+    
+    feature_index = tree['split_feature']
+    threshold = tree['threshold']
+
+    if X[feature_index] <= threshold:
+        return predict_decision_tree(tree['left'], X)
+    else:
+        return predict_decision_tree(tree['right'], X)
+
+import numpy as np
+
+def predict_random_forest(trees, X):
+    """
+    Hàm dự đoán cho Random Forest.
+    :param trees: Danh sách các cây quyết định trong Random Forest.
+    :param X: Dữ liệu đầu vào (vector đặc trưng).
+    :return: Dự đoán trung bình của tất cả các cây.
+    """
+    predictions = np.array([predict_decision_tree(tree, X) for tree in trees])
+    return np.mean(predictions)
