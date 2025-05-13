@@ -232,14 +232,33 @@ class Board:
         # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
         else:
             piece = self.get_piece_by_position(x, y)
-            if piece and self.game_logic.is_correct_turn(piece):
-                Suggestion.clear() # clear previous suggestion
-                self.selected_piece = piece
-                print(f"Chọn quân({self.selected_piece.name}) cờ tại ({self.selected_piece.x}, {self.selected_piece.y})")
-                self.suggestion.suggest(self.selected_piece, self.board_state)
+            if self.mode == "red":
+                if piece and piece.color == "red":
+                    Suggestion.clear() # clear previous suggestion
+                    self.selected_piece = piece
+                    print(f"Chọn quân({self.selected_piece.name}) cờ tại ({self.selected_piece.x}, {self.selected_piece.y})")
+                    self.suggestion.suggest(self.selected_piece, self.board_state)
+                else:
+                    print("Không thể chọn quân vì sai màu!")
+                    self.selected_piece = None
+            if self.mode == "black":
+                    if piece and piece.color == "black":
+                        Suggestion.clear() # clear previous suggestion
+                        self.selected_piece = piece
+                        print(f"Chọn quân({self.selected_piece.name}) cờ tại ({self.selected_piece.x}, {self.selected_piece.y})")
+                        self.suggestion.suggest(self.selected_piece, self.board_state)
+                    else:
+                        print("Không thể chọn quân vì sai màu!")
+                        self.selected_piece = None
             else:
-                print("Không thể chọn quân vì sai màu!")
-                self.selected_piece = None
+                if piece and self.game_logic.is_correct_turn(piece):
+                    Suggestion.clear() # clear previous suggestion
+                    self.selected_piece = piece
+                    print(f"Chọn quân({self.selected_piece.name}) cờ tại ({self.selected_piece.x}, {self.selected_piece.y})")
+                    self.suggestion.suggest(self.selected_piece, self.board_state)
+                else:
+                    print("Không thể chọn quân vì sai màu!")
+                    self.selected_piece = None
 
     def get_piece_by_position(self, x_click, y_click):
         """Tìm quân cờ gần nhất với vị trí click"""

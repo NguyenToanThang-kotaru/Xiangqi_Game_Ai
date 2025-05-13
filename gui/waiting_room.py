@@ -86,7 +86,7 @@ class WaitingRoom:
         
         self.board_canvas = tk.Canvas(self.parent, width=400, height=425, bg="#333333")
         self.board_canvas.pack(expand=True)
-        Board_v2(self.board_canvas,self.client_socket)
+        Board_v2(self.board_canvas,self.client_socket,"black")
         back_btn = tk.Button(self.parent, text="Back", bg="#FF3399", fg="white", font=config_font.get_font(12), padx=20, pady=8, command=self.back_to_menu_from_board)
         back_btn.pack(pady=10)
 

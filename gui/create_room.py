@@ -107,7 +107,7 @@ class CreateRoomForm:
         # Tạo canvas và truyền conn vào Board
         self.board_canvas = tk.Canvas(self.root, width=400, height=525, bg="#333333")
         self.board_canvas.pack(expand=True)
-        Board(self.board_canvas, conn)   # ← conn ở đây
+        Board(self.board_canvas, conn,"red")   # ← conn ở đây
 
         # Nút back
         back_btn = tk.Button(self.root, text="Back", bg="#FF3399", fg="white",
