@@ -231,7 +231,7 @@ class Board:
                 self.fen_counts[fen] += 1
                 # print(f"{fen}: Count {self.fen_counts[fen]}")
                 if self.fen_counts[fen] >= 3:
-                    print("The game is a draw") # TODO: GUI Here
+                    messagebox.showinfo("Game Over", "Draw!")
                     self.canvas.unbind("<Button-1>")
                 
                 # --------------- Update FEN String to check repetition ---------------
