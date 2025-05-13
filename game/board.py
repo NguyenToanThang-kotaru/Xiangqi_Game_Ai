@@ -135,10 +135,14 @@ class Board:
             if target_piece.color != piece.color:
                 if not self.game_logic.check_move(piece,to_pos,self.board_state):
                     print("Di chuyen sai luat")
+                    Suggestion.clear() # clear previous suggestion
+                    self.selected_piece = None
                     return 0
                 # find the king that have same color as piece, and check if it's gonna be attacked
                 if self.game_logic.is_king_safe(piece, to_pos, self.board_state) != None:
                     print("Không đi được vì sẽ bị chiếu - di chuyển quân")
+                    Suggestion.clear()
+                    self.selected_piece = None
                     return 0
                 
                 print(f"Quân {piece.name} ăn quân {target_piece.name} tại ({x2}, {y2})")
@@ -162,6 +166,8 @@ class Board:
         else:    
             if not self.game_logic.check_move(piece,to_pos,self.board_state):
                 print("Di chuyen sai luat")
+                Suggestion.clear() # clear previous suggestion
+                self.selected_piece = None
                 return 0
             # find the king that have same color as piece, and check if it's gonna be attacked
             # create temporary board state
@@ -194,20 +200,9 @@ class Board:
             # self.move_piece(self.selected_piece, (col, row))
                 if self.conn:
                     self.send_move(from_pos, (col, row))
-                # self.print_board()
-                # fen = self.to_fen()
-                # print(fen)
-
-                # check if the king is checkmated
-                red_king = self.game_logic.find_king(self.board_state, "red")
-                black_king = self.game_logic.find_king(self.board_state, "black")
-
-                if red_king and self.game_logic.is_checkmated(red_king, self.board_state):
-                    print("Red king is checkmated")
-                    self.canvas.unbind("<Button-1>")
-                elif black_king and self.game_logic.is_checkmated(black_king, self.board_state):
-                    print("Black king is checkmated")
-                    self.canvas.unbind("<Button-1>")
+                    # self.print_board()
+                    # fen = self.to_fen()
+                    # print(fen)
     
                 # --------------- Update FEN String to check repetition ---------------
 
@@ -215,7 +210,7 @@ class Board:
                 self.fen_counts[fen] += 1
                 # print(f"{fen}: Count {self.fen_counts[fen]}")
                 if self.fen_counts[fen] >= 3:
-                    print("The game is a draw")
+                    print("The game is a draw") # TODO: GUI Here
                     self.canvas.unbind("<Button-1>")
                 
                 # --------------- Update FEN String to check repetition ---------------
@@ -227,11 +222,40 @@ class Board:
                     if self.game_logic.current_turn == "black":
                         self.make_ai_move()
                         self.game_logic.swap_turn()
+
+                # Check if the game is ended by checkmate
+                color = "red" if self.game_logic.current_turn == "black" else "black"
+                print("Cheking checkmate: Current turn:", self.game_logic.current_turn)
+                king_piece = self.game_logic.find_king(self.board_state, color)
+                self.print_board()
+                from tkinter import messagebox
+                if king_piece.color == "red" and self.game_logic.is_checkmated(king_piece, self.board_state):
+                    messagebox.showinfo("Game Over", "Red king is checkmated! Black wins!")
+                    self.canvas.unbind("<Button-1>")  # Disable further moves
+                elif king_piece.color == "black" and self.game_logic.is_checkmated(king_piece, self.board_state):
+                    messagebox.showinfo("Game Over", "Black king is checkmated! Red wins!")
+                    self.canvas.unbind("<Button-1>")  # Disable further moves
             # elif self.move_piece(self.selected_piece, (col, row))==1:
 
         # chọn quân cờ trong trường hợp chưa chọn quân cờ nào   
         else:
             piece = self.get_piece_by_position(x, y)
+            if piece is None:
+                print("Không có quân cờ nào tại vị trí này.")
+                Suggestion.clear() # clear previous suggestion
+                self.selected_piece = None
+                return
+            # Kiểm tra xem quân cờ có phải là quân của người chơi không
+            if piece.color != self.game_logic.current_turn:
+                print("Lượt của đối thủ. Không thể di chuyển quân cờ này.")
+                Suggestion.clear() # clear previous suggestion
+                return
+            if self.mode != "Play vs AI" and piece.color != self.mode:
+                print("Lượt của đối thủ. Không thể di chuyển quân cờ này.")
+                Suggestion.clear()
+                self.selected_piece = None
+                return
+
             if self.mode == "red":
                 if piece and piece.color == "red":
                     Suggestion.clear() # clear previous suggestion
@@ -488,7 +512,7 @@ class Board:
             self.selected_piece = piece
             if self.move_piece(piece, to_pos) == 1:
                 print("Opponent moved:", piece.name, from_pos, "→", to_pos)
-                self.print_board()
+                # self.print_board()
                 self.game_logic.swap_turn()
                 Suggestion.clear()
         except Exception as e:
@@ -504,6 +528,6 @@ class Board:
         piece = self.board_state[y1][x1]
         if piece and self.move_piece(piece, (x2, y2)) == 1:
             self.game_logic.swap_turn()
-    
+
     def __del__(self):
         print("Board instance is being destroyed!")

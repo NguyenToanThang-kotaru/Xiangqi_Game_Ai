@@ -39,6 +39,7 @@ class GameLogic:
         return self.is_checked(king_piece, new_board)
     
     def is_checked(self, king_piece, board_state):
+        print("Inside is_checked function.")
         if king_piece is None:
             print("Error: King piece is missing")
             return None
@@ -53,6 +54,10 @@ class GameLogic:
         return None
 
     def is_checkmated(self, king_piece, board_state):
+        print("Inside is_checkmated function.")
+        if king_piece is None:
+            print("Error: King piece is missing")
+            return False
         enemy_piece = self.is_checked(king_piece, board_state)
         if enemy_piece:
             if not self.is_other_have_valid_move(enemy_piece, king_piece, board_state):
@@ -60,6 +65,7 @@ class GameLogic:
         return False
 
     def is_other_have_valid_move(self, attacking_piece, king_piece, board_state):
+        print("Inside is_other_have_valid_move function.")
         attacking_moves = []
         block_checkmate = []
 

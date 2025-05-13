@@ -59,33 +59,51 @@ class WaitingRoom:
     def join_room(self):
         ip = self.ip_entry.get()
         password = self.pw_entry.get()
-        self.status_label.config(text="Connecting...")
+        self.status_label.config(text="Connecting...", fg="white")
         threading.Thread(target=self.connect_to_server, args=(ip, password), daemon=True).start()
 
     def connect_to_server(self, ip, password):
         PORT = 2000
-        s =  socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((ip, PORT))
-        self.client_socket = s
-        s.sendall(password.encode() if password else b'_EMPTY_')
-        response = s.recv(1024).decode()
-        print('received response from the server')
-        if response.startswith("OK|"):
-            print('password corrected')
-            room_name = response.split("|", 1)[1]
-            self.status_label.config(text="Connected! Starting game...")
-            self.show_board_v2(room_name)
-        else:
-            print('password incorrected')
-            self.status_label.config(text="Wrong password or connection refused.")
+        try:
+            # Establish the connection
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((ip, PORT))
+            self.client_socket = s
+            print("Connected to server")
+
+            while True:
+                # Send the password to the server
+                s.sendall(password.encode() if password else b'_EMPTY_')
+                response = s.recv(1024).decode()
+                print('Received response from the server:', response)
+
+                if response.startswith("OK|"):
+                    print('Password correct')
+                    room_name = response.split("|", 1)[1]
+                    self.status_label.config(text="Connected! Starting game...")
+                    self.show_board_v2(room_name)
+                    break  # Exit the loop and proceed to the game
+                elif response == "WRONG_PASSWORD":
+                    print('Password incorrect')
+                    self.status_label.config(text="Wrong password. Please try again.", fg="red")
+                    # Wait for the user to re-enter the password
+                    password = self.pw_entry.get()  # Get the updated password from the entry field
+                else:
+                    print('Unexpected response from server:', response)
+                    self.status_label.config(text="Connection error. Please try again.", fg="red")
+                    break  # Exit the loop on unexpected responses
+        except Exception as e:
+            print(f"Error connecting to server: {e}")
+            self.status_label.config(text="Failed to connect to server.", fg="red")    
+    
     def show_board_v2(self, room_name):
         self.status_label.destroy()
         self.frame.destroy()    
-        # self.root.attributes('-fullscreen', True)
-        # self.turn_label = tk.Label(self.root, text="Your turn: Black", fg="white", bg="black", font=config_font.get_font(14))
-        # self.turn_label.pack(pady=10)
+        self.parent.attributes('-fullscreen', True)
         room_label = tk.Label(self.parent, text=f"Room: {room_name}", fg="yellow", bg="black", font=config_font.get_font(16))
         room_label.pack(pady=10)
+        self.turn_label = tk.Label(self.parent, text="Your turn: Black", fg="white", bg="black", font=config_font.get_font(14))
+        self.turn_label.pack(pady=10)
         
         self.board_canvas = tk.Canvas(self.parent, width=400, height=425, bg="#333333")
         self.board_canvas.pack(expand=True)

@@ -67,33 +67,36 @@ class CreateRoomForm:
         PORT = 2000
         # Tạo socket và lưu vào self để có thể đóng khi back
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # Allow port reuse immediately
         self.server_socket.bind((HOST, PORT))
         self.server_socket.listen(1)
         print("Server is listening...")
         conn, addr = self.server_socket.accept()
         print(f"Client connected from {addr}")
 
-        # Nhận password từ client
-        client_password = conn.recv(1024).decode()
-        print("Received password from client")
+        while True:
+            # Nhận password từ client
+            client_password = conn.recv(1024).decode()
+            print("Received password from client")
 
-        # Kiểm tra password
-        if client_password == password:
-            print("Password corrected")
-            conn.sendall(f"OK|{self.room_name}".encode())
-            print("sent signal 'OK' to the client")
-            self.status_label.config(text="Player joined! Starting game...")
+            # Kiểm tra password
+            if client_password == password:
+                print("Password corrected")
+                conn.sendall(f"OK|{self.room_name}".encode())
+                print("sent signal 'OK' to the client")
+                self.status_label.config(text="Player joined! Starting game...")
 
-            # Lưu conn lên instance để dùng gửi nước đi sau này
-            self.server_conn = conn
+                # Lưu conn lên instance để dùng gửi nước đi sau này
+                self.server_conn = conn
 
-            # Truyền conn vào show_board
-            self.show_board(self.room_name, conn)
-        else:
-            conn.sendall(b'WRONG_PASSWORD')
-            self.status_label.config(text="Wrong password! Connection refused.")
+                # Truyền conn vào show_board
+                self.show_board(self.room_name, conn)
+                break
+            else:
+                conn.sendall(b'WRONG_PASSWORD')
+                # self.status_label.config(text="Wrong password! Connection refused.")
 
-    def show_board(self, room_name, conn):
+    def show_board(self, room_name, conn): # GUI full screen
         # Xóa UI cũ
         self.status_label.destroy()
         self.frame.destroy()
