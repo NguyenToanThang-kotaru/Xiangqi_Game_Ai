@@ -223,7 +223,7 @@ class Board:
                 # Chuyển lượt sau khi di chuyển
                 self.game_logic.swap_turn()
                 Suggestion.clear()
-                if self.mode:
+                if self.mode=="Play vs AI":
                     if self.game_logic.current_turn == "black":
                         self.make_ai_move()
                         self.game_logic.swap_turn()
@@ -332,14 +332,12 @@ class Board:
     def make_ai_move(self):
         """Gọi AI để chọn nước đi"""
         ai_move = self.ai.get_ai_move()
-        print(f"AI Move: {ai_move[0].name} từ ({ai_move[0].x}, {ai_move[0].y}) đến ({ai_move[1][0]}, {ai_move[1][1]})")
-        
-        
-        if ai_move:
+        if ai_move != -50:
+            print(f"AI Move: {ai_move[0].name} từ ({ai_move[0].x}, {ai_move[0].y}) đến ({ai_move[1][0]}, {ai_move[1][1]})")
             piece, move = ai_move
             self.move_piece(piece, move)
         else:
-            print("AI không thể di chuyển, hòa")
+            print("AI không thể di chuyển, vì thất bại")
             
             
             
